@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  MainTabBarController.swift
 //  takeTrip
 //
 //  Created by 권정근 on 10/18/24.
@@ -7,13 +7,11 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class MainTabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemRed
+        view.backgroundColor = .systemBackground
     }
-
-
 }
 

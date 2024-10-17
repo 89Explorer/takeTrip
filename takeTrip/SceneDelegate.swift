@@ -19,8 +19,51 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
-        let homeVC = ViewController()
-        window?.rootViewController = homeVC
+        //let homeVC = ViewController()
+        //window?.rootViewController = homeVC
+        //window?.makeKeyAndVisible()
+        self.setupMainTabBarController()
+    }
+    
+    // 메인 탭바 관련 함수
+    func setupMainTabBarController() {
+        
+        let mainTabBarController = MainTabBarController()
+        
+        let homeVC = UINavigationController(rootViewController: HomeViewController())
+        let searchVC = UINavigationController(rootViewController: SearchViewController())
+        let feedVC = UINavigationController(rootViewController: FeedViewController())
+        let mapVC = UINavigationController(rootViewController: MapViewController())
+        let profileVC = UINavigationController(rootViewController: ProfileViewController())
+        
+        homeVC.tabBarItem.image = UIImage(systemName: "house.circle")
+        homeVC.tabBarItem.selectedImage = UIImage(systemName: "house.circle.fill")
+        homeVC.tabBarItem.title = "Home"
+        
+        searchVC.tabBarItem.image = UIImage(systemName: "magnifyingglass.circle")
+        searchVC.tabBarItem.selectedImage = UIImage(systemName: "magnifyingglass.circle.fill")
+        searchVC.tabBarItem.title = "Search"
+        
+        feedVC.tabBarItem.image = UIImage(systemName: "plus.circle")
+        feedVC.tabBarItem.selectedImage = UIImage(systemName: "plus.circle.fill")
+        feedVC.tabBarItem.title = "Feed"
+        
+        
+        mapVC.tabBarItem.image = UIImage(systemName: "map.circle")
+        mapVC.tabBarItem.selectedImage = UIImage(systemName: "map.circle.fill")
+        mapVC.tabBarItem.title = "Map"
+        
+        profileVC.tabBarItem.image = UIImage(systemName: "person.circle")
+        profileVC.tabBarItem.selectedImage = UIImage(systemName: "person.circle.fill")
+        profileVC.tabBarItem.title = "Profile"
+        
+        mainTabBarController.tabBar.tintColor = .label
+        mainTabBarController.tabBar.unselectedItemTintColor = .secondaryLabel
+        mainTabBarController.tabBar.backgroundColor = .secondarySystemBackground
+        
+        mainTabBarController.setViewControllers([homeVC, searchVC, feedVC, mapVC, profileVC], animated: true)
+        
+        window?.rootViewController = mainTabBarController
         window?.makeKeyAndVisible()
     }
 
