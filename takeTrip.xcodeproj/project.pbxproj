@@ -37,6 +37,24 @@
 			);
 			target = 9D095AFE2CC1811E003A117D /* takeTrip */;
 		};
+		9DE60F5D2CC214D500D16538 /* Exceptions for "takeTrip" folder in "takeTripTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Resource/Font/YeongdoOTF-Bold.otf",
+				"Resource/Font/YeongdoOTF-Heavy.otf",
+				"Resource/Font/YeongdoOTF-Regular.otf",
+			);
+			target = 9D095B172CC18120003A117D /* takeTripTests */;
+		};
+		9DE60F5E2CC214D500D16538 /* Exceptions for "takeTrip" folder in "takeTripUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Resource/Font/YeongdoOTF-Bold.otf",
+				"Resource/Font/YeongdoOTF-Heavy.otf",
+				"Resource/Font/YeongdoOTF-Regular.otf",
+			);
+			target = 9D095B212CC18120003A117D /* takeTripUITests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -44,6 +62,8 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				9D095B2A2CC18120003A117D /* Exceptions for "takeTrip" folder in "takeTrip" target */,
+				9DE60F5D2CC214D500D16538 /* Exceptions for "takeTrip" folder in "takeTripTests" target */,
+				9DE60F5E2CC214D500D16538 /* Exceptions for "takeTrip" folder in "takeTripUITests" target */,
 			);
 			path = takeTrip;
 			sourceTree = "<group>";
