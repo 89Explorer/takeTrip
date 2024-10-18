@@ -12,6 +12,7 @@ class HomeFeedTableViewCell: UITableViewCell {
     
     // MARK: - Variables
     static let identifier = "HomeFeedTableViewCell"
+    //
     var selectedSpotItem: [AttractionItem] = []
     
     
@@ -52,7 +53,7 @@ class HomeFeedTableViewCell: UITableViewCell {
     }
     
     /// contentTypeId, cat1, cat2, cat3 를 통해 외부로부터 데이터를 받아오는 getAreaBasedList를 호출하는 메서드
-    func getDataFromAreaBsedList(pageNo: String = "1",contentTypeId: String, cat1: String, cat2: String, cat3: String) {
+    func getDataFromAreaBasedList(pageNo: String = "1",contentTypeId: String, cat1: String, cat2: String, cat3: String) {
         NetworkManager.shared.getAreaBasedList(pageNo: pageNo ,contentTypeId: contentTypeId, cat1: cat1, cat2: cat2, cat3: cat3) { results in
             switch results {
             case .success(let selectedItem):
@@ -65,6 +66,7 @@ class HomeFeedTableViewCell: UITableViewCell {
             }
         }
     }
+    
     
     // MARK: - Layouts
     private func configureConstraints() {
@@ -100,6 +102,8 @@ extension HomeFeedTableViewCell: UICollectionViewDelegate, UICollectionViewDataS
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)   //  셀을 선택 해제하는 역할
+        
+        
         print("collectionView selected index: \(indexPath.item)")
     }
 }

@@ -25,10 +25,10 @@ class NetworkManager {
         // 쿼리 아이템 설정
         components?.queryItems = [
             URLQueryItem(name: "serviceKey", value: Constants.api_key),
-            URLQueryItem(name: "numOfRows", value: "10"),
+            URLQueryItem(name: "numOfRows", value: "5"),
             URLQueryItem(name: "pageNo", value: pageNo),
-            URLQueryItem(name: "MobileOS", value: "ETC"),
-            URLQueryItem(name: "MobileApp", value: "AppTest"),
+            URLQueryItem(name: "MobileOS", value: "iOS"),
+            URLQueryItem(name: "MobileApp", value: "takeTrip"),
             URLQueryItem(name: "_type", value: "json"),
             URLQueryItem(name: "listYN", value: "Y"),
             URLQueryItem(name: "arrange", value: "Q"),  // "Q"로 변경

@@ -10,8 +10,13 @@ import UIKit
 class HomeViewController: UIViewController {
     
     // MARK: - Variables
+    // 각 섹션별로 타이틀 설정
     var categories: [String] = ["날이 쌀쌀해질 때 생각나는 온천 여행 ", "아이와 함께 가는 테마 여행", "역사와 문화가 살아 숨쉬는 박물관 여행", "걷고 쉬고 사색하는 도보 코스", "그 옛날 정을 느끼고 싶다면, 시장 여행"]
-    var randomPage = String(Int.random(in: 1...10))
+
+    
+    // 앱의 새로고침을 위한 변수
+    var refreshTimer: Timer?
+    var lastBackgroundTime: Date?
     
     // MARK: - UI Component
     let homeFeedTableView: UITableView = {
@@ -32,6 +37,8 @@ class HomeViewController: UIViewController {
         
         configureConstraints()
         configureHomeFeedTable()
+        
+        tableViewReload()
         
         // 화면을 아래로 스크롤하면 네비게이션바 부분이 숨겨지고, 반대로 하면 나타나는 기능
         // self.navigationController?.hidesBarsOnSwipe = false
@@ -80,6 +87,36 @@ class HomeViewController: UIViewController {
     }
     
     
+    /// 앱의 데이터 개신을 위해 호출 되는 함수
+    func tableViewReload() {
+        // 백그라운드와 포그라운드 알림 추가
+        NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+    
+    
+    /// 앱이 백그라운드로 들어갈 때 현재 시간을 기록하는 함수
+    @objc func appDidEnterBackground() {
+        lastBackgroundTime = Date()
+    }
+
+    
+    /// 앱이 다시 활성화되었을 때, 마지막 백그라운드 시간과 현재 시간 비교하는 함수
+    @objc func appWillEnterForeground() {
+        if let lastTime = lastBackgroundTime {
+            let timeElapsed = Date().timeIntervalSince(lastTime)
+            if timeElapsed > 300 { // 300초 = 5분
+                self.homeFeedTableView.reloadData()
+            }
+        }
+    }
+
+    deinit {
+        // 옵저버 해제
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    
     // MARK: - Layouts
     /// UI 요소의 제약조건을 설정하는 함수
     private func configureConstraints() {
@@ -88,7 +125,7 @@ class HomeViewController: UIViewController {
         let homeFeedTableViewConstraints = [
             homeFeedTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             homeFeedTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            homeFeedTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            homeFeedTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
             homeFeedTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ]
         
@@ -134,7 +171,10 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         let cat2 = spotParameters.cat2
         let cat3 = spotParameters.cat3
         
-        cell.getDataFromAreaBsedList(pageNo: self.randomPage, contentTypeId: contentTypeId, cat1: cat1, cat2: cat2, cat3: cat3)
+        // 데이터를 랜덤으로 가져오기 위해 무작위로 페이지 설정 변수
+        let randomPage = String(Int.random(in: 1...15))
+        
+        cell.getDataFromAreaBasedList(pageNo: randomPage, contentTypeId: contentTypeId, cat1: cat1, cat2: cat2, cat3: cat3)
         
         return cell
     }
@@ -157,7 +197,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "\(categories[section])"
         //label.font = UIFont(name: "HakgyoansimBunpilR", size: 16)
-        label.font = .systemFont(ofSize: 16, weight: .black)
+        label.font = .systemFont(ofSize: 18, weight: .black)
         label.textColor = .label
         label.backgroundColor = .clear
         label.textAlignment = .left
@@ -169,7 +209,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         moreButton.setTitle("더 보기", for: .normal)
         moreButton.tag = section
         //moreButton.titleLabel?.font = UIFont(name: "HakgyoansimBunpilR", size: 16)
-        moreButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .light)
+        moreButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .regular)
         moreButton.setTitleColor(.label, for: .normal)
         moreButton.addTarget(self, action: #selector(moreButtonTapped(_:)), for: .touchUpInside)
         
@@ -190,7 +230,6 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
 
 
 // MARK: - Enum 관광지별 파라미터 구분
-
 enum SpotPrameters {
     case spaCollection
     case themaCollection
