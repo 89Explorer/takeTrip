@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class FeedCollectionViewCell: UICollectionViewCell {
     
@@ -35,10 +36,20 @@ class FeedCollectionViewCell: UICollectionViewCell {
         label.text = "경복궁"
         label.textAlignment = .left
         label.numberOfLines = 0
-        label.font = UIFont(name: "Yeongdo-Heavy", size: 16)
-        //label.font = .systemFont(ofSize: 16, weight: .medium)
+        //label.font = UIFont(name: "YeongdoOTF-Heavy", size: 10)
+        label.font = .systemFont(ofSize: 16, weight: .bold)
         label.textColor = .white
         return label
+    }()
+    
+    let bagButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        let configure = UIImage.SymbolConfiguration(pointSize: 20)
+        let image = UIImage(systemName: "bag.circle.fill", withConfiguration: configure)
+        button.setImage(image, for: .normal)
+        button.tintColor = .white
+        return button
     }()
     
     // MARK: - Initializations
@@ -54,11 +65,25 @@ class FeedCollectionViewCell: UICollectionViewCell {
     }
     
     
+    // MARK: - Functions
+    func configureCollectionViewCell(with item: AttractionItem) {
+        guard let imagePath = item.firstimage, let title = item.title else { return }
+        
+        let securePosterURL = imagePath.replacingOccurrences(of: "http://", with: "https://")
+        
+        let url = URL(string: securePosterURL)
+        
+        spotImage.sd_setImage(with: url)
+        spotTitleLabel.text = title
+    }
+    
+    
     // MARK: - Layouts
     private func configureConstraints() {
         contentView.addSubview(basicView)
         basicView.addSubview(spotImage)
         basicView.addSubview(spotTitleLabel)
+        basicView.addSubview(bagButton)
         
         let basicViewConstraints = [
             basicView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -80,8 +105,14 @@ class FeedCollectionViewCell: UICollectionViewCell {
             spotTitleLabel.widthAnchor.constraint(equalToConstant: 150)
         ]
         
+        let bagButtonConstraints = [
+            bagButton.trailingAnchor.constraint(equalTo: basicView.trailingAnchor, constant: -10),
+            bagButton.bottomAnchor.constraint(equalTo: basicView.bottomAnchor, constant: -10)
+        ]
+        
         NSLayoutConstraint.activate(basicViewConstraints)
         NSLayoutConstraint.activate(spotImageConstraints)
         NSLayoutConstraint.activate(spotTitleLabelConstraints)
+        NSLayoutConstraint.activate(bagButtonConstraints)
     }
 }

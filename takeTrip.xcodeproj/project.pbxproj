@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9DD769412CC21D6800BF683F /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD769402CC21D6800BF683F /* NetworkManager.swift */; };
+		9DD769432CC21F7700BF683F /* AttractionResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD769422CC21F7700BF683F /* AttractionResponse.swift */; };
+		9DD769462CC22BC600BF683F /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 9DD769452CC22BC600BF683F /* SDWebImage */; };
+		9DD769482CC22BC600BF683F /* SDWebImageMapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 9DD769472CC22BC600BF683F /* SDWebImageMapKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		9D095B192CC18120003A117D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +34,8 @@
 		9D095AFF2CC1811E003A117D /* takeTrip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = takeTrip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D095B182CC18120003A117D /* takeTripTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = takeTripTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D095B222CC18120003A117D /* takeTripUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = takeTripUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9DD769402CC21D6800BF683F /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		9DD769422CC21F7700BF683F /* AttractionResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttractionResponse.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -85,6 +94,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9DD769482CC22BC600BF683F /* SDWebImageMapKit in Frameworks */,
+				9DD769462CC22BC600BF683F /* SDWebImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,6 +119,8 @@
 		9D095AF62CC1811E003A117D = {
 			isa = PBXGroup;
 			children = (
+				9DD7693F2CC21D5500BF683F /* Model */,
+				9DD7693E2CC21D3800BF683F /* Network */,
 				9D095B012CC1811E003A117D /* takeTrip */,
 				9D095B1B2CC18120003A117D /* takeTripTests */,
 				9D095B252CC18120003A117D /* takeTripUITests */,
@@ -123,6 +136,22 @@
 				9D095B222CC18120003A117D /* takeTripUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		9DD7693E2CC21D3800BF683F /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				9DD769402CC21D6800BF683F /* NetworkManager.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		9DD7693F2CC21D5500BF683F /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				9DD769422CC21F7700BF683F /* AttractionResponse.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -145,6 +174,8 @@
 			);
 			name = takeTrip;
 			packageProductDependencies = (
+				9DD769452CC22BC600BF683F /* SDWebImage */,
+				9DD769472CC22BC600BF683F /* SDWebImageMapKit */,
 			);
 			productName = takeTrip;
 			productReference = 9D095AFF2CC1811E003A117D /* takeTrip.app */;
@@ -228,6 +259,9 @@
 			);
 			mainGroup = 9D095AF62CC1811E003A117D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9DD769442CC22BC600BF683F /* XCRemoteSwiftPackageReference "SDWebImage" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9D095B002CC1811E003A117D /* Products */;
 			projectDirPath = "";
@@ -269,6 +303,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9DD769432CC21F7700BF683F /* AttractionResponse.swift in Sources */,
+				9DD769412CC21D6800BF683F /* NetworkManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -595,6 +631,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9DD769442CC22BC600BF683F /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.19.7;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9DD769452CC22BC600BF683F /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9DD769442CC22BC600BF683F /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		9DD769472CC22BC600BF683F /* SDWebImageMapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9DD769442CC22BC600BF683F /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImageMapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9D095AF72CC1811E003A117D /* Project object */;
 }

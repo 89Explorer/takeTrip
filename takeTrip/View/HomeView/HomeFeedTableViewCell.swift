@@ -12,6 +12,7 @@ class HomeFeedTableViewCell: UITableViewCell {
     
     // MARK: - Variables
     static let identifier = "HomeFeedTableViewCell"
+    var selectedSpotItem: [AttractionItem] = []
     
     
     // MARK: - UI Components
@@ -50,6 +51,21 @@ class HomeFeedTableViewCell: UITableViewCell {
         feedCollectionView.register(FeedCollectionViewCell.self, forCellWithReuseIdentifier: FeedCollectionViewCell.identifier)
     }
     
+    /// contentTypeId, cat1, cat2, cat3 를 통해 외부로부터 데이터를 받아오는 getAreaBasedList를 호출하는 메서드
+    func getDataFromAreaBsedList(pageNo: String = "1",contentTypeId: String, cat1: String, cat2: String, cat3: String) {
+        NetworkManager.shared.getAreaBasedList(pageNo: pageNo ,contentTypeId: contentTypeId, cat1: cat1, cat2: cat2, cat3: cat3) { results in
+            switch results {
+            case .success(let selectedItem):
+                self.selectedSpotItem = selectedItem.response.body.items.item
+                DispatchQueue.main.async {
+                    self.feedCollectionView.reloadData()
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
     // MARK: - Layouts
     private func configureConstraints() {
         contentView.addSubview(feedCollectionView)
@@ -69,12 +85,15 @@ class HomeFeedTableViewCell: UITableViewCell {
 // MARK: - UICollectionViewDelegate, UICollectionViewDatasource
 extension HomeFeedTableViewCell: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10
+        return selectedSpotItem.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeedCollectionViewCell.identifier, for: indexPath) as? FeedCollectionViewCell else { return UICollectionViewCell() }
+        
+        let selectedCellData = selectedSpotItem[indexPath.row]
+        cell.configureCollectionViewCell(with: selectedCellData)
         
         return cell
     }

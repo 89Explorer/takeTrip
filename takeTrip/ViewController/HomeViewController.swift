@@ -10,8 +10,8 @@ import UIKit
 class HomeViewController: UIViewController {
     
     // MARK: - Variables
-    var categories: [String] = ["날이 쌀쌀해질 때 생각나는 온천여행 ", "문화 여행", "음식 여행", "코스 여행", "쇼핑 여행"]
-    
+    var categories: [String] = ["날이 쌀쌀해질 때 생각나는 온천 여행 ", "아이와 함께 가는 테마 여행", "역사와 문화가 살아 숨쉬는 박물관 여행", "걷고 쉬고 사색하는 도보 코스", "그 옛날 정을 느끼고 싶다면, 시장 여행"]
+    var randomPage = String(Int.random(in: 1...10))
     
     // MARK: - UI Component
     let homeFeedTableView: UITableView = {
@@ -34,7 +34,7 @@ class HomeViewController: UIViewController {
         configureHomeFeedTable()
         
         // 화면을 아래로 스크롤하면 네비게이션바 부분이 숨겨지고, 반대로 하면 나타나는 기능
-        self.navigationController?.hidesBarsOnSwipe = true
+        // self.navigationController?.hidesBarsOnSwipe = false
     }
     
     
@@ -42,27 +42,13 @@ class HomeViewController: UIViewController {
     /// 네비게이션 아이템 설정 함수
     func configureNavigationItem() {
         
-//        let titleLabel = UILabel()
-//        titleLabel.text = "Take a trip"
-//        titleLabel.textColor = .label
-//        titleLabel.font = UIFont(name: "YeongdoOTF-Bold", size: 28)
-//        
-//        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
-
-        let originalImage = UIImage(named: "taketriplogo-removebg.png")
-        let scaledSize = CGSize(width: 40, height: 40) // 시스템 버튼과 비슷한 크기
-
-        UIGraphicsBeginImageContextWithOptions(scaledSize, false, 0.0)
-        originalImage?.draw(in: CGRect(origin: .zero, size: scaledSize))
-        let scaledImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-
-        // 원본 이미지 색상을 유지하기 위해 렌더링 모드를 .alwaysOriginal로 설정
-        let originalColorImage = scaledImage?.withRenderingMode(.alwaysOriginal)
-
-        let barButton = UIBarButtonItem(image: originalColorImage, style: .plain, target: self, action: #selector(leftBarButtonTapped))
-        navigationItem.leftBarButtonItem = barButton
+        let titleLabel = UILabel()
+        titleLabel.text = "Take a trip"
+        titleLabel.textColor = .label
+        // titleLabel.font = UIFont(name: "YeongdoOTF-Bold", size: 28)
+        titleLabel.font = .systemFont(ofSize: 28, weight: .black)
         
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
         
         let alarmButton = UIButton(type: .system)
         alarmButton.setImage(UIImage(systemName: "bell"), for: .normal)
@@ -94,10 +80,6 @@ class HomeViewController: UIViewController {
     }
     
     
-    @objc private func leftBarButtonTapped() {
-        print("Logo image Called")
-    }
-    
     // MARK: - Layouts
     /// UI 요소의 제약조건을 설정하는 함수
     private func configureConstraints() {
@@ -128,6 +110,32 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: HomeFeedTableViewCell.identifier, for: indexPath) as? HomeFeedTableViewCell else { return UITableViewCell() }
         
+        
+        // 열거형으로 컬렉션 뷰의 파라미터 설정
+        let spotParameters: SpotPrameters
+        
+        switch indexPath.section {
+        case 0:
+            spotParameters = .spaCollection
+        case 1:
+            spotParameters = .themaCollection
+        case 2:
+            spotParameters = .museumCollection
+        case 3:
+            spotParameters = .tripcourseCollection
+        case 4:
+            spotParameters = .marketCollection
+        default:
+            spotParameters = .spaCollection
+        }
+        
+        let contentTypeId = spotParameters.contentTypeId
+        let cat1 = spotParameters.cat1
+        let cat2 = spotParameters.cat2
+        let cat3 = spotParameters.cat3
+        
+        cell.getDataFromAreaBsedList(pageNo: self.randomPage, contentTypeId: contentTypeId, cat1: cat1, cat2: cat2, cat3: cat3)
+        
         return cell
     }
     
@@ -139,7 +147,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 50
     }
-
+    
     
     func tableView(_ tableView: UITableView,viewForHeaderInSection section: Int) -> UIView? {
         
@@ -177,5 +185,76 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         
         return headerView
     }
+}
+
+
+
+// MARK: - Enum 관광지별 파라미터 구분
+
+enum SpotPrameters {
+    case spaCollection
+    case themaCollection
+    case museumCollection
+    case tripcourseCollection
+    case marketCollection
     
+    var contentTypeId: String {
+        switch self {
+        case .spaCollection:
+            return "12"
+        case .themaCollection:
+            return "12"
+        case .museumCollection:
+            return "14"
+        case .tripcourseCollection:
+            return "25"
+        case .marketCollection:
+            return "38"
+        }
+    }
+    
+    var cat1: String {
+        switch self {
+        case .spaCollection:
+            return "A02"
+        case .themaCollection:
+            return "A02"
+        case .museumCollection:
+            return "A02"
+        case .tripcourseCollection:
+            return "C01"
+        case .marketCollection:
+            return "A04"
+        }
+    }
+    
+    var cat2: String {
+        switch self {
+        case .spaCollection:
+            return "A0202"
+        case .themaCollection:
+            return "A0202"
+        case .museumCollection:
+            return "A0206"
+        case .tripcourseCollection:
+            return "C0115"
+        case .marketCollection:
+            return "A0401"
+        }
+    }
+    
+    var cat3: String {
+        switch self {
+        case .spaCollection:
+            return "A02020300"
+        case .themaCollection:
+            return "A02020600"
+        case .museumCollection:
+            return "A02060100"
+        case .tripcourseCollection:
+            return "C01150001"
+        case .marketCollection:
+            return "A04010200"
+        }
+    }
 }
