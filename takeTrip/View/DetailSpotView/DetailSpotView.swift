@@ -9,6 +9,10 @@ import UIKit
 
 class DetailSpotView: UIView {
     
+    // MARK: - Variables
+    private var isExpanded: Bool = false // 더보기 상태 트래킹
+    
+    
     // MARK: - UI Components
     let basicView: UIScrollView = {
         let view = UIScrollView()
@@ -102,27 +106,36 @@ class DetailSpotView: UIView {
         return view
     }()
     
-    lazy var spotTotalStackView: UIStackView = {
+    lazy var totalStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
-        stackView.spacing = 5
-        stackView.distribution = .fillProportionally
-        stackView.alignment = .center
+        stackView.axis = .vertical
+        stackView.spacing = 10
+        stackView.alignment = .fill
+        stackView.distribution = .fill
         return stackView
     }()
     
-    let spotAddressImage: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        let configure = UIImage.SymbolConfiguration(pointSize: 30)
-        let image = UIImage(systemName: "location.circle", withConfiguration: configure)
-        imageView.image = image
-        imageView.tintColor = .label
-        return imageView
+    let spotOverviewView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 20
+        view.backgroundColor = .systemBackground
+        view.clipsToBounds = true
+        return view
     }()
     
-    lazy var spotLabelStackView: UIStackView = {
+    lazy var spotOverviewStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .horizontal
+        stackView.spacing = 10
+        stackView.alignment = .center
+        stackView.distribution = .fill
+        return stackView
+    }()
+    
+    lazy var spotOverviewLabelStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -131,35 +144,153 @@ class DetailSpotView: UIView {
         return stackView
     }()
     
-    let spotAddressTitle: UILabel = {
+    let spotOverviewImage: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        let configure = UIImage.SymbolConfiguration(pointSize: 25)
+        let image = UIImage(systemName: "book.circle", withConfiguration: configure)
+        imageView.image = image
+        imageView.tintColor = .label
+        return imageView
+    }()
+    
+    let spotOverviewTitle: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 14, weight: .bold)
-        label.text = "주소"
+        label.text = "소개"
         label.textColor = .label
         label.textAlignment = .left
         return label
     }()
     
-    let spotAddressValue: UILabel = {
+    let spotOverviewValue: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.text = "경기도 고양시 덕양구 화정동 110번 화졍역 이니스프리"
-        label.textAlignment = .left
+        label.text = "자인사는 김상수(법명 해공)가 서울특별시 종로구 명륜동에 창건하였다가 1964년 현 위치인 경기도 포천시 영북면 산정리 71번지에 약 5.4m(18척)의 석고 미륵불을 조성하면서 이전한 절이다. 산정 호수 뒷산인 명성산에 자리한 자인사는 명당의 상징이자 궁예와 왕건의 전설이 깃든 잿터 바위를 경내에 두고 있다. 자인사라는 이름은 궁예의 미륵 세계를 상징하는 [자]와 영계에서나마 궁예와 왕건의 화해를 기원하는 [인]을 합친 것이라고 한다. 승려인 정영도가 1993년 극락보전을, 1998년 미륵 좌불을 조성하여 현재에 이른다. 명성산 기슭에 자리 잡고 있으며 일주문을 지나면 현대식 건물의 큰 요사채가 보이고, 극락보전 뒤로 책을 펼쳐놓은 것처럼 보이는 책바위가 장관을 이룬다. 전각으로는 약사전, 관음전, 삼성각, 종각 그리고 극락보전이 있다. 입구쪽에는 잿터바위가 놓여있는데 이는 서기 905년 완건이 태봉국 궁예왕의 수하로 있을 때 궁예왕의 명으로 후백제의 금성(나주)를 공격하러 가기 전에 이 바위에서 산제를 지낸 후 현몽을 받아 승전하였다고 전해진다. 후삼국을 통일한 후에도 태조 왕건은 국가의 태평과 백성의 안녕을 기원할 때 이 바위를 찾았으며, 지금도 재를 올린터, 잿터바위라 하여 이곳에서 기도를 하면 소원을 이루게 된다고 한다. 또한 경내에서 솟아나는 샘물은 맛좋기로 소문나 있다."
+        label.numberOfLines = 5
         label.textColor = .label
+        label.textAlignment = .left
         return label
     }()
     
-    let moveToPageButton: UIButton = {
-        let button = UIButton()
+    let moreOverviewButton: UIButton = {
+        var configuration = UIButton.Configuration.plain() // 버튼 스타일 설정
+        configuration.title = "더 보기"
+        configuration.baseForegroundColor = .label // 텍스트 색상 설정
+        
+        // 텍스트 스타일 설정
+        configuration.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var outgoing = incoming
+            outgoing.font = .systemFont(ofSize: 12, weight: .bold) // 글자 크기 12
+            return outgoing
+        }
+
+        let button = UIButton(configuration: configuration, primaryAction: nil)
         button.translatesAutoresizingMaskIntoConstraints = false
-        let configure = UIImage.SymbolConfiguration(pointSize: 25)
-        let image = UIImage(systemName: "chevron.right", withConfiguration: configure)
-        button.setImage(image, for: .normal)
-        button.tintColor = .label
         return button
     }()
+    
+    let nearbySpotView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 20
+        view.backgroundColor = .systemBackground
+        view.clipsToBounds = true
+        return view
+    }()
+    
+    let nearbySpotStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .horizontal
+        stackView.spacing = 10
+        stackView.alignment = .center
+        stackView.distribution = .fill
+        return stackView
+    }()
+    
+    let nearbySpotImage: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        let configure = UIImage.SymbolConfiguration(pointSize: 25)
+        let image = UIImage(systemName: "flag.circle", withConfiguration: configure)
+        imageView.image = image
+        imageView.tintColor = .label
+        return imageView
+    }()
+    
+    let nearbySpotTitle: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 16, weight: .bold)
+        label.text = "주변 추천 장소"
+        label.textColor = .label
+        label.textAlignment = .left
+        return label
+    }()
+    
+    
+    //    lazy var spotTotalStackView: UIStackView = {
+    //        let stackView = UIStackView()
+    //        stackView.translatesAutoresizingMaskIntoConstraints = false
+    //        stackView.axis = .horizontal
+    //        stackView.spacing = 5
+    //        stackView.distribution = .fillProportionally
+    //        stackView.alignment = .center
+    //        return stackView
+    //    }()
+    //
+    //    let spotAddressImage: UIImageView = {
+    //        let imageView = UIImageView()
+    //        imageView.translatesAutoresizingMaskIntoConstraints = false
+    //        let configure = UIImage.SymbolConfiguration(pointSize: 30)
+    //        let image = UIImage(systemName: "location.circle", withConfiguration: configure)
+    //        imageView.image = image
+    //        imageView.tintColor = .label
+    //        return imageView
+    //    }()
+    //
+    //    lazy var spotLabelStackView: UIStackView = {
+    //        let stackView = UIStackView()
+    //        stackView.translatesAutoresizingMaskIntoConstraints = false
+    //        stackView.axis = .vertical
+    //        stackView.spacing = 5
+    //        stackView.distribution = .fill
+    //        return stackView
+    //    }()
+    //
+    //    let spotAddressTitle: UILabel = {
+    //        let label = UILabel()
+    //        label.translatesAutoresizingMaskIntoConstraints = false
+    //        label.font = .systemFont(ofSize: 14, weight: .bold)
+    //        label.text = "주소"
+    //        label.textColor = .label
+    //        label.textAlignment = .left
+    //        return label
+    //    }()
+    //
+    //    let spotAddressValue: UILabel = {
+    //        let label = UILabel()
+    //        label.translatesAutoresizingMaskIntoConstraints = false
+    //        label.font = .systemFont(ofSize: 12, weight: .medium)
+    //        label.text = "경기도 고양시 덕양구 화정동 110번 화졍역 이니스프리"
+    //        label.numberOfLines = 0
+    //        label.textAlignment = .left
+    //        label.textColor = .label
+    //        return label
+    //    }()
+    
+//    lazy var moveToPageButton: UIButton = {
+//        let button = UIButton()
+//        button.translatesAutoresizingMaskIntoConstraints = false
+//        let configure = UIImage.SymbolConfiguration(pointSize: 25)
+//        let image = UIImage(systemName: "chevron.right", withConfiguration: configure)
+//        button.setImage(image, for: .normal)
+//        button.tintColor = .label
+//        return button
+//    }()
     
     
     // MARK: - Initializations
@@ -168,6 +299,11 @@ class DetailSpotView: UIView {
         backgroundColor = .secondarySystemBackground
         configureConstraints()
         
+        
+        // 스팟 정보를 설정하는 곳에서 호출
+        configureSpotInfo(spotAddress: "경기도 고양시 덕양구 화정동 111-2번지 화정역", spotPhone: "123-1234-1234", spotWebsite: nil, spotOperateTime: "오전 09:00 ~ 오후 18:00")
+        
+        moreOverviewButton.addTarget(self, action: #selector(toggleTextExpansion), for: .touchUpInside)
     }
     
     required init?(coder: NSCoder) {
@@ -186,14 +322,21 @@ class DetailSpotView: UIView {
         headerView.addSubview(detailImageCollectionView)
         
         basicView.addSubview(spotInfoView)
-        spotInfoView.addSubview(spotTotalStackView)
-        spotTotalStackView.addArrangedSubview(spotAddressImage)
-        spotTotalStackView.addArrangedSubview(spotLabelStackView)
-        spotTotalStackView.addArrangedSubview(moveToPageButton)
-        spotLabelStackView.addArrangedSubview(spotAddressTitle)
-        spotLabelStackView.addArrangedSubview(spotAddressValue)
-                            
-
+        spotInfoView.addSubview(totalStackView)
+        
+        basicView.addSubview(spotOverviewView)
+        spotOverviewView.addSubview(spotOverviewStackView)
+        spotOverviewView.addSubview(moreOverviewButton)
+        spotOverviewStackView.addArrangedSubview(spotOverviewImage)
+        spotOverviewStackView.addArrangedSubview(spotOverviewLabelStackView)
+        spotOverviewLabelStackView.addArrangedSubview(spotOverviewTitle)
+        spotOverviewLabelStackView.addArrangedSubview(spotOverviewValue)
+        
+        basicView.addSubview(nearbySpotView)
+        nearbySpotView.addSubview(nearbySpotStackView)
+        nearbySpotStackView.addArrangedSubview(nearbySpotImage)
+        nearbySpotStackView.addArrangedSubview(nearbySpotTitle)
+        
         
         let basicViewConstraints = [
             basicView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -237,28 +380,62 @@ class DetailSpotView: UIView {
             spotInfoView.leadingAnchor.constraint(equalTo: basicView.leadingAnchor),
             spotInfoView.trailingAnchor.constraint(equalTo: basicView.trailingAnchor),
             spotInfoView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 10),
+            spotInfoView.widthAnchor.constraint(equalTo: basicView.widthAnchor),
             spotInfoView.heightAnchor.constraint(greaterThanOrEqualToConstant: 60)
         ]
         
-        let spotTotalStackViewConstraints = [
-            spotTotalStackView.leadingAnchor.constraint(equalTo: spotInfoView.leadingAnchor, constant: 10),
-            spotTotalStackView.trailingAnchor.constraint(equalTo: spotInfoView.trailingAnchor, constant: -10),
-            spotTotalStackView.topAnchor.constraint(equalTo: spotInfoView.topAnchor),
-            spotTotalStackView.bottomAnchor.constraint(equalTo: spotInfoView.bottomAnchor)
+        let totalStackViewConstraints = [
+            totalStackView.leadingAnchor.constraint(equalTo: spotInfoView.leadingAnchor, constant: 10),
+            totalStackView.trailingAnchor.constraint(equalTo: spotInfoView.trailingAnchor, constant: -10),
+            totalStackView.topAnchor.constraint(equalTo: spotInfoView.topAnchor, constant: 5),
+            totalStackView.bottomAnchor.constraint(equalTo: spotInfoView.bottomAnchor, constant: -5)
         ]
         
-//        let spotLabelStackViewConstraints = [
-//            spotLabelStackView.widthAnchor.constraint(equalToConstant: 300)
-//        ]
-        
-        let spotAddressImageConstraints = [
-            spotAddressImage.widthAnchor.constraint(equalToConstant: 30),
-            spotAddressImage.heightAnchor.constraint(equalToConstant: 30)
+        let spotOverviewViewConstraints = [
+            spotOverviewView.leadingAnchor.constraint(equalTo: basicView.leadingAnchor),
+            spotOverviewView.trailingAnchor.constraint(equalTo: basicView.trailingAnchor),
+            spotOverviewView.topAnchor.constraint(equalTo: spotInfoView.bottomAnchor, constant: 10),
+            spotOverviewView.widthAnchor.constraint(equalTo: basicView.widthAnchor),
+            spotOverviewView.heightAnchor.constraint(greaterThanOrEqualToConstant: 120)
         ]
         
-        let moveToPageButtonConstraints = [
-            moveToPageButton.widthAnchor.constraint(equalToConstant: 25),
-            moveToPageButton.heightAnchor.constraint(equalToConstant: 25)
+        let spotOverviewStackViewConstraints = [
+            spotOverviewStackView.leadingAnchor.constraint(equalTo: spotOverviewView.leadingAnchor, constant: 10),
+            spotOverviewStackView.trailingAnchor.constraint(equalTo: spotOverviewView.trailingAnchor, constant: -10),
+            spotOverviewStackView.topAnchor.constraint(equalTo: spotOverviewView.topAnchor, constant: 5),
+            spotOverviewStackView.heightAnchor.constraint(greaterThanOrEqualToConstant: 80),
+            spotOverviewStackView.bottomAnchor.constraint(equalTo: spotOverviewView.bottomAnchor, constant: -20)
+        ]
+        
+        let spotOverviewImageConstraints = [
+            spotOverviewImage.widthAnchor.constraint(equalToConstant: 25),
+            spotOverviewImage.heightAnchor.constraint(equalToConstant: 25)
+        ]
+        
+        let moreOverviewButtonConstraints = [
+            moreOverviewButton.trailingAnchor.constraint(equalTo: spotOverviewView.trailingAnchor, constant: -10),
+            moreOverviewButton.bottomAnchor.constraint(equalTo: spotOverviewView.bottomAnchor)
+        ]
+        
+        let nearbySpotViewConstraints = [
+            nearbySpotView.leadingAnchor.constraint(equalTo: basicView.leadingAnchor),
+            nearbySpotView.trailingAnchor.constraint(equalTo: basicView.trailingAnchor),
+            nearbySpotView.topAnchor.constraint(equalTo: spotOverviewView.bottomAnchor, constant: 10),
+            nearbySpotView.heightAnchor.constraint(equalToConstant: 350),
+            nearbySpotView.widthAnchor.constraint(equalTo: basicView.widthAnchor),
+            nearbySpotView.bottomAnchor.constraint(equalTo: basicView.bottomAnchor)
+        ]
+        
+        let nearbySpotStackViewConstraints = [
+            nearbySpotStackView.leadingAnchor.constraint(equalTo: nearbySpotView.leadingAnchor, constant: 10),
+            nearbySpotStackView.trailingAnchor.constraint(equalTo: nearbySpotView.trailingAnchor, constant: -10),
+            nearbySpotStackView.topAnchor.constraint(equalTo: nearbySpotView.topAnchor, constant: 5),
+            nearbySpotStackView.heightAnchor.constraint(equalToConstant: 30)
+        ]
+        
+        let nearbySpotImageConstraints = [
+            nearbySpotImage.widthAnchor.constraint(equalToConstant: 25),
+            nearbySpotImage.heightAnchor.constraint(equalToConstant: 25)
         ]
         
         NSLayoutConstraint.activate(basicViewConstraints)
@@ -268,49 +445,239 @@ class DetailSpotView: UIView {
         NSLayoutConstraint.activate(bagButtonConstraints)
         NSLayoutConstraint.activate(detailImageCollectionViewConstraints)
         NSLayoutConstraint.activate(spotInfoViewConstraints)
-        NSLayoutConstraint.activate(spotTotalStackViewConstraints)
-        //NSLayoutConstraint.activate(spotLabelStackViewConstraints)
-        NSLayoutConstraint.activate(spotAddressImageConstraints)
-        NSLayoutConstraint.activate(moveToPageButtonConstraints)
+        NSLayoutConstraint.activate(totalStackViewConstraints)
+        NSLayoutConstraint.activate(spotOverviewViewConstraints)
+        NSLayoutConstraint.activate(spotOverviewStackViewConstraints)
+        NSLayoutConstraint.activate(spotOverviewImageConstraints)
+        NSLayoutConstraint.activate(moreOverviewButtonConstraints)
+        NSLayoutConstraint.activate(nearbySpotViewConstraints)
+        NSLayoutConstraint.activate(nearbySpotStackViewConstraints)
+        NSLayoutConstraint.activate(nearbySpotImageConstraints)
         
     }
-
+    
     
     // MARK: - Functions
-    func createLabel(text: String) -> UILabel {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = text
-        label.textAlignment = .center
-        label.font = .systemFont(ofSize: 14, weight: .bold)
-        label.textColor = .label
-        return label
+    //    func configureSpotInfo(address: String?, phone: String?, website: String?) {
+    //        // 스택뷰에서 모든 하위 뷰 제거
+    //        spotTotalStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+    //
+    //        // 주소가 있을 경우 UI 추가
+    //        if let address = address, !address.isEmpty {
+    //            let spotAddressImage = UIImageView(image: UIImage(systemName: "location.fill"))
+    //            let spotAddressTitle = UILabel()
+    //            spotAddressTitle.text = "주소"
+    //            spotAddressTitle.font = .systemFont(ofSize: 14, weight: .bold)
+    //
+    //            let spotAddressValue = UILabel()
+    //            spotAddressValue.text = address
+    //            spotAddressValue.font = .systemFont(ofSize: 12)
+    //            spotAddressValue.numberOfLines = 0
+    //
+    //            let addressStackView = createHorizontalStackView(imageView: spotAddressImage, titleLabel: spotAddressTitle, valueLabel: spotAddressValue)
+    //            spotTotalStackView.addArrangedSubview(addressStackView)
+    //        }
+    //
+    //        // 전화번호가 있을 경우 UI 추가
+    //        if let phone = phone, !phone.isEmpty {
+    //            let phoneImage = UIImageView(image: UIImage(systemName: "phone.fill"))
+    //            let phoneTitle = UILabel()
+    //            phoneTitle.text = "전화"
+    //            phoneTitle.font = .systemFont(ofSize: 14, weight: .bold)
+    //
+    //            let phoneValue = UILabel()
+    //            phoneValue.text = phone
+    //            phoneValue.font = .systemFont(ofSize: 12)
+    //            phoneValue.numberOfLines = 0
+    //
+    //            let phoneStackView = createHorizontalStackView(imageView: phoneImage, titleLabel: phoneTitle, valueLabel: phoneValue)
+    //            spotTotalStackView.addArrangedSubview(phoneStackView)
+    //        }
+    //
+    //        // 홈페이지가 있을 경우 UI 추가
+    //        if let website = website, !website.isEmpty {
+    //            let websiteImage = UIImageView(image: UIImage(systemName: "globe"))
+    //            let websiteTitle = UILabel()
+    //            websiteTitle.text = "홈페이지"
+    //            websiteTitle.font = .systemFont(ofSize: 14, weight: .bold)
+    //
+    //            let websiteValue = UILabel()
+    //            websiteValue.text = website
+    //            websiteValue.font = .systemFont(ofSize: 12)
+    //            websiteValue.numberOfLines = 0
+    //
+    //            let websiteStackView = createHorizontalStackView(imageView: websiteImage, titleLabel: websiteTitle, valueLabel: websiteValue)
+    //            spotTotalStackView.addArrangedSubview(websiteStackView)
+    //        }
+    //    }
+    //
+    //    // UI 요소 생성 편의 함수
+    //    func createHorizontalStackView(imageView: UIImageView, titleLabel: UILabel, valueLabel: UILabel) -> UIStackView {
+    //        let stackView = UIStackView()
+    //        stackView.axis = .horizontal
+    //        stackView.spacing = 8
+    //        stackView.alignment = .center
+    //
+    //        let labelStackView = UIStackView(arrangedSubviews: [titleLabel, valueLabel])
+    //        labelStackView.axis = .vertical
+    //        labelStackView.spacing = 4
+    //
+    //        stackView.addArrangedSubview(imageView)
+    //        stackView.addArrangedSubview(labelStackView)
+    //
+    //        return stackView
+    //    }
+    
+    
+    /// 외부에서 받아온 데이터 중에서 파라미터에 해당하는 값을 가져와 각 stackview를 구현하는 함수를 호출하는 함수
+    func configureSpotInfo(spotAddress: String?, spotPhone: String?, spotWebsite: String?, spotOperateTime: String?) {
+        // 먼저 기존 스택의 모든 서브뷰 제거
+        totalStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
+        // Address Section
+        if let address = spotAddress {
+            let addressStack = createHorizontalStackView(
+                image: UIImage(systemName: "location.circle"),
+                title: "주소",
+                value: address
+                //button: moveToPageButton
+            )
+            totalStackView.addArrangedSubview(addressStack)
+        }
+        
+        // Phone Section
+        if let phone = spotPhone {
+            let phoneStack = createHorizontalStackView(
+                image: UIImage(systemName: "phone.circle"),
+                title: "전화",
+                value: phone
+                //button: moveToPageButton
+            )
+            totalStackView.addArrangedSubview(phoneStack)
+        }
+        
+        // Website Section
+        if let website = spotWebsite {
+            let websiteStack = createHorizontalStackView(
+                image: UIImage(systemName: "globe"),
+                title: "홈페이지",
+                value: website
+                //button: moveToPageButton
+            )
+            totalStackView.addArrangedSubview(websiteStack)
+        }
+        
+        // Operate Section'
+        if let operateTime = spotOperateTime {
+            let operateStack = createHorizontalStackView(
+                image: UIImage(systemName: "clock.circle"),
+                title: "영업시간",
+                value: operateTime
+                //button: moveToPageButton
+            )
+            totalStackView.addArrangedSubview(operateStack)
+        }
+        
     }
     
-    func createImageView(text: String) -> UIImageView {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        let configure = UIImage.SymbolConfiguration(pointSize: 25)
-        let image = UIImage(systemName: text, withConfiguration: configure)
-        imageView.image = image
-        imageView.tintColor = .label
-        return imageView
-    }
-
-    func createVerticalStackView(arrangedSubviews: [UIView]) -> UIStackView {
-        let stackView = UIStackView(arrangedSubviews: arrangedSubviews)
-        stackView.axis = .vertical
-        stackView.alignment = .leading
-        stackView.spacing = 4
-        return stackView
-    }
     
-    func createHorizontalStackView(arrangedSubviews: [UIView]) -> UIStackView {
-        let stackView = UIStackView(arrangedSubviews: arrangedSubviews)
+    /// 이미지, 제목, 값, 버튼을 받아와서 stackView로 묶어주는 함수
+//    func createHorizontalStackView(image: UIImage?, title: String, value: String, button: UIButton) -> UIStackView {
+//        let stackView = UIStackView()
+//        stackView.axis = .horizontal
+//        stackView.spacing = 10
+//        stackView.alignment = .center
+//        stackView.distribution = .fillProportionally
+//        
+//        let imageView = UIImageView(image: image)
+//        imageView.tintColor = .label
+//        imageView.translatesAutoresizingMaskIntoConstraints = false
+//        imageView.widthAnchor.constraint(equalToConstant: 25).isActive = true
+//        imageView.heightAnchor.constraint(equalToConstant: 25).isActive = true
+//        
+//        let titleLabel = UILabel()
+//        titleLabel.text = title
+//        titleLabel.font = .systemFont(ofSize: 14, weight: .bold)
+//        
+//        let valueLabel = UILabel()
+//        valueLabel.text = value
+//        valueLabel.font = .systemFont(ofSize: 12)
+//        valueLabel.numberOfLines = 0
+//        
+//        let textStack = UIStackView(arrangedSubviews: [titleLabel, valueLabel])
+//        textStack.axis = .vertical
+//        textStack.spacing = 4
+//        
+//        let moveToPageButton = UIButton(type: .system)
+//        moveToPageButton.setImage(UIImage(systemName: "chevron.right"), for: .normal)
+//        moveToPageButton.tintColor = .label
+//        moveToPageButton.translatesAutoresizingMaskIntoConstraints = false
+//        moveToPageButton.widthAnchor.constraint(equalToConstant: 25).isActive = true
+//        moveToPageButton.heightAnchor.constraint(equalToConstant: 25).isActive = true
+//        
+//        stackView.addArrangedSubview(imageView)
+//        stackView.addArrangedSubview(textStack)
+//        stackView.addArrangedSubview(moveToPageButton)
+//        
+//        return stackView
+//    }
+    
+    func createHorizontalStackView(image: UIImage?, title: String, value: String) -> UIStackView {
+        let stackView = UIStackView()
         stackView.axis = .horizontal
+        stackView.spacing = 10
         stackView.alignment = .center
-        stackView.distribution = .fill
-        stackView.spacing = 4
+        stackView.distribution = .fillProportionally
+        
+        let imageView = UIImageView(image: image)
+        imageView.tintColor = .label
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.widthAnchor.constraint(equalToConstant: 25).isActive = true
+        imageView.heightAnchor.constraint(equalToConstant: 25).isActive = true
+        
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 14, weight: .bold)
+        
+        let valueLabel = UILabel()
+        valueLabel.text = value
+        valueLabel.font = .systemFont(ofSize: 12)
+        valueLabel.numberOfLines = 0
+        
+        let textStack = UIStackView(arrangedSubviews: [titleLabel, valueLabel])
+        textStack.axis = .vertical
+        textStack.spacing = 4
+        
+        let moveToPageButton = UIButton(type: .system)
+        moveToPageButton.setImage(UIImage(systemName: "chevron.right"), for: .normal)
+        moveToPageButton.tintColor = .label
+        moveToPageButton.translatesAutoresizingMaskIntoConstraints = false
+        moveToPageButton.widthAnchor.constraint(equalToConstant: 25).isActive = true
+        moveToPageButton.heightAnchor.constraint(equalToConstant: 25).isActive = true
+        
+        stackView.addArrangedSubview(imageView)
+        stackView.addArrangedSubview(textStack)
+        stackView.addArrangedSubview(moveToPageButton)
+        
         return stackView
+    }
+    
+    
+    /// Overview의 소개 글을 처음에는 5줄, 누르면 텍스트 길이에 맞게 늘려주는 함수
+    @objc private func toggleTextExpansion() {
+        isExpanded.toggle() // 상태 변경
+        
+        if isExpanded {
+            spotOverviewValue.numberOfLines = 0 // 전체 텍스트 표시
+            moreOverviewButton.setTitle("줄이기", for: .normal)
+        } else {
+            spotOverviewValue.numberOfLines = 5 // 5줄로 다시 제한
+            moreOverviewButton.setTitle("더보기", for: .normal)
+        }
+        
+        // 레이아웃 업데이트 (애니메이션 포함)
+        UIView.animate(withDuration: 0.3) {
+            self.spotOverviewView.layoutIfNeeded() // 높이 자동 조정
+        }
     }
 }
