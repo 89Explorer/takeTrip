@@ -14,6 +14,7 @@ class HomeFeedTableViewCell: UITableViewCell {
     static let identifier = "HomeFeedTableViewCell"
     //
     var selectedSpotItem: [AttractionItem] = []
+    weak var delegate: HomeFeedTableViewCellDelegate?
     
     
     // MARK: - UI Components
@@ -37,6 +38,8 @@ class HomeFeedTableViewCell: UITableViewCell {
         backgroundColor = .clear
         configureConstraints()
         configureFeedCollectionView()
+        
+
     }
     
     required init?(coder: NSCoder) {
@@ -103,7 +106,14 @@ extension HomeFeedTableViewCell: UICollectionViewDelegate, UICollectionViewDataS
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)   //  셀을 선택 해제하는 역할
         
+        let selectedItem = selectedSpotItem[indexPath.item]
         
-        print("collectionView selected index: \(indexPath.item)")
+        delegate?.didSelectItem(selectedItem)
+        
     }
+}
+
+
+protocol HomeFeedTableViewCellDelegate: AnyObject {
+    func didSelectItem(_ selectedItem: AttractionItem)
 }

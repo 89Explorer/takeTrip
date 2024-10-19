@@ -59,7 +59,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         mainTabBarController.tabBar.tintColor = .label
         mainTabBarController.tabBar.unselectedItemTintColor = .secondaryLabel
-        mainTabBarController.tabBar.backgroundColor = .secondarySystemBackground
+        mainTabBarController.tabBar.backgroundColor = .systemBackground
         
         mainTabBarController.setViewControllers([homeVC, searchVC, feedVC, mapVC, profileVC], animated: true)
         
