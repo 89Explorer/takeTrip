@@ -107,7 +107,6 @@ extension HomeFeedTableViewCell: UICollectionViewDelegate, UICollectionViewDataS
         collectionView.deselectItem(at: indexPath, animated: true)   //  셀을 선택 해제하는 역할
         
         let selectedItem = selectedSpotItem[indexPath.item]
-        
         delegate?.didSelectItem(selectedItem)
         
     }

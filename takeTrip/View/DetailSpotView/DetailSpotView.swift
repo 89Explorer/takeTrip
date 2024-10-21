@@ -13,6 +13,7 @@ class DetailSpotView: UIView {
     private var isExpanded: Bool = false // 더보기 상태 트래킹
     
     
+    
     // MARK: - UI Components
     let basicView: UIScrollView = {
         let view = UIScrollView()
@@ -231,16 +232,41 @@ class DetailSpotView: UIView {
         return label
     }()
     
-    let nearbySpotStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 2
-        stackView.alignment = .fill
-        stackView.distribution = .fill
-        return stackView
+    let nearbyTableView: IntrinsicTableView = {
+        let tableView = IntrinsicTableView(frame: .zero)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.backgroundColor = .systemRed
+        tableView.isScrollEnabled = false
+        tableView.separatorStyle = .none
+        return tableView
     }()
     
+    var button: UIButton = {
+        var configuration = UIButton.Configuration.filled()
+        configuration.baseBackgroundColor = .secondarySystemBackground
+        configuration.baseForegroundColor = .label
+        configuration.cornerStyle = .medium
+        
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
+        
+        var titleContainer = AttributeContainer()
+        titleContainer.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+        
+        // configuration.attributedTitle = AttributedString("주변 추천 장소 더보기 (1/3)", attributes: titleContainer)
+        //configuration.title = "주변 추천 장소 더보기 1/3"
+        configuration.titleAlignment = .center
+        //configuration.attributedTitle?.font = UIFont.systemFont(ofSize: 14, weight: .bold)
+        configuration.image = UIImage(systemName: "arrow.clockwise")
+        configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 15)
+        configuration.imagePadding = 10
+        configuration.titleAlignment = .leading
+        
+        
+        let button = UIButton(configuration: configuration)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
     
     // MARK: - Initializations
     override init(frame: CGRect) {
@@ -252,10 +278,6 @@ class DetailSpotView: UIView {
         // 스팟 정보를 설정하는 곳에서 호출
         configureSpotInfo(spotAddress: "경기도 고양시 덕양구 화정동 111-2번지 화정역", spotPhone: "123-1234-1234", spotWebsite: nil, spotOperateTime: "오전 09:00 ~ 오후 18:00")
         
-        // 스팟 근처의 정보를 받아오는 함수 호출
-        configureNearbySpot(nearbySpotImage: "korea", nearbySpotTitle: "한국박물관", nearbySpotCategory: "박물관", nearbySpotAdress: "경기도 고양시 덕양구 화정동 111-1번지 이니스프리 ")
-        configureNearbySpot(nearbySpotImage: "korea", nearbySpotTitle: "한국박물관", nearbySpotCategory: "박물관", nearbySpotAdress: "경기도 고양시 덕양구 화정동 111-1번지 이니스프리" )
-        configureNearbySpot(nearbySpotImage: "korea", nearbySpotTitle: "한국박물관", nearbySpotCategory: "박물관", nearbySpotAdress: "경기도 고양시 덕양구 화정동 111-1번지 이니스프리" )
         
         moreOverviewButton.addTarget(self, action: #selector(toggleTextExpansion), for: .touchUpInside)
     }
@@ -288,9 +310,12 @@ class DetailSpotView: UIView {
         
         basicView.addSubview(nearbySpotView)
         nearbySpotView.addSubview(nearbySpotTitleStackView)
-        nearbySpotView.addSubview(nearbySpotStackView)
+        nearbySpotView.addSubview(button)
+        //nearbySpotView.addSubview(nearbySpotStackView)
+        nearbySpotView.addSubview(nearbyTableView)
         nearbySpotTitleStackView.addArrangedSubview(nearbySpotImage)
         nearbySpotTitleStackView.addArrangedSubview(nearbySpotTitle)
+        
         
         
         let basicViewConstraints = [
@@ -376,9 +401,9 @@ class DetailSpotView: UIView {
             nearbySpotView.leadingAnchor.constraint(equalTo: basicView.leadingAnchor),
             nearbySpotView.trailingAnchor.constraint(equalTo: basicView.trailingAnchor),
             nearbySpotView.topAnchor.constraint(equalTo: spotOverviewView.bottomAnchor, constant: 10),
-            nearbySpotView.heightAnchor.constraint(greaterThanOrEqualToConstant: 200),
+            nearbySpotView.heightAnchor.constraint(greaterThanOrEqualToConstant: 250),
             nearbySpotView.widthAnchor.constraint(equalTo: basicView.widthAnchor),
-            nearbySpotView.bottomAnchor.constraint(equalTo: basicView.bottomAnchor)
+            nearbySpotView.bottomAnchor.constraint(equalTo: basicView.bottomAnchor, constant: -5)
         ]
         
         let nearbySpotTitleStackViewConstraints = [
@@ -393,13 +418,21 @@ class DetailSpotView: UIView {
             nearbySpotImage.heightAnchor.constraint(equalToConstant: 25)
         ]
         
-        let nearbySpotStackViewConstraints = [
-            nearbySpotStackView.leadingAnchor.constraint(equalTo: nearbySpotView.leadingAnchor, constant: 10),
-            nearbySpotStackView.trailingAnchor.constraint(equalTo: nearbySpotView.trailingAnchor, constant: -10),
-            nearbySpotStackView.topAnchor.constraint(equalTo: nearbySpotTitleStackView.bottomAnchor, constant: 10),
-            nearbySpotStackView.heightAnchor.constraint(greaterThanOrEqualToConstant: 120),
-            nearbySpotStackView.bottomAnchor.constraint(equalTo: nearbySpotView.bottomAnchor, constant: -50)
+        let nearbyTableViewConstraints = [
+            nearbyTableView.leadingAnchor.constraint(equalTo: nearbySpotView.leadingAnchor, constant: 10),
+            nearbyTableView.trailingAnchor.constraint(equalTo: nearbySpotView.trailingAnchor, constant: -10),
+            nearbyTableView.topAnchor.constraint(equalTo: nearbySpotTitleStackView.bottomAnchor),
+            // nearbyTableView.bottomAnchor.constraint(equalTo: nearbySpotView.bottomAnchor, constant: -10)
         ]
+        
+        let buttonConstraints = [
+            button.leadingAnchor.constraint(equalTo: nearbySpotView.leadingAnchor,constant: 10),
+            button.trailingAnchor.constraint(equalTo: nearbySpotView.trailingAnchor, constant: -10),
+            button.topAnchor.constraint(equalTo: nearbyTableView.bottomAnchor, constant: 10),
+            button.heightAnchor.constraint(equalToConstant: 45),
+            button.bottomAnchor.constraint(equalTo: nearbySpotView.bottomAnchor, constant: -10)
+        ]
+    
         
         NSLayoutConstraint.activate(basicViewConstraints)
         NSLayoutConstraint.activate(headerViewConstraints)
@@ -409,20 +442,23 @@ class DetailSpotView: UIView {
         NSLayoutConstraint.activate(detailImageCollectionViewConstraints)
         NSLayoutConstraint.activate(spotInfoViewConstraints)
         NSLayoutConstraint.activate(totalStackViewConstraints)
+        
         NSLayoutConstraint.activate(spotOverviewViewConstraints)
         NSLayoutConstraint.activate(spotOverviewStackViewConstraints)
         NSLayoutConstraint.activate(spotOverviewImageConstraints)
         NSLayoutConstraint.activate(moreOverviewButtonConstraints)
+        
         NSLayoutConstraint.activate(nearbySpotViewConstraints)
         NSLayoutConstraint.activate(nearbySpotTitleStackViewConstraints)
-        NSLayoutConstraint.activate(nearbySpotStackViewConstraints)
+        //NSLayoutConstraint.activate(nearbySpotStackViewConstraints)
         NSLayoutConstraint.activate(nearbySpotImageConstraints)
+        NSLayoutConstraint.activate(nearbyTableViewConstraints)
+        NSLayoutConstraint.activate(buttonConstraints)
         
     }
     
     
     // MARK: - Functions
-    
     /// 외부에서 받아온 데이터 중에서 파라미터에 해당하는 값을 가져와 각 stackview를 구현하는 함수를 호출하는 함수
     func configureSpotInfo(spotAddress: String?, spotPhone: String?, spotWebsite: String?, spotOperateTime: String?) {
         // 먼저 기존 스택의 모든 서브뷰 제거
@@ -535,111 +571,139 @@ class DetailSpotView: UIView {
     }
     
     
+
+    
+    
     /// 외부에서 받아온 데이터 중에서 근처 명소 이미지, 이름, 카테고리를 받아와 StackView에 담는 함수 호출
-    func configureNearbySpot(nearbySpotImage: String?, nearbySpotTitle: String?, nearbySpotCategory: String?, nearbySpotAdress: String?) {
-        
-        //nearbySpotStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        
-        if let image = nearbySpotImage,
-           let title = nearbySpotTitle,
-           let category = nearbySpotCategory,
-           let address = nearbySpotAdress
-        {
-            
-            let nearbySpotStack = createHorizontalNearbyStackView(image: image, title: title, category: category, address: address)
-            
-            let border = UIView()
-            border.backgroundColor = .label
-            border.translatesAutoresizingMaskIntoConstraints = false
-            border.heightAnchor.constraint(equalToConstant: 1).isActive = true
-            
-            nearbySpotStackView.addArrangedSubview(nearbySpotStack)
-            nearbySpotStackView.addArrangedSubview(border)
-        }
-    }
+    //    func configureNearbySpot(nearbySpotImage: String?, nearbySpotTitle: String?, nearbySpotCategory: String?, nearbySpotAdress: String?) {
+    //
+    //        //nearbySpotStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+    //
+    //        if let image = nearbySpotImage,
+    //           let title = nearbySpotTitle,
+    //           let category = nearbySpotCategory,
+    //           let address = nearbySpotAdress
+    //        {
+    //
+    //            let nearbySpotStack = createHorizontalNearbyStackView(image: image, title: title, category: category, address: address)
+    //
+    //            let border = UIView()
+    //            border.backgroundColor = .label
+    //            border.translatesAutoresizingMaskIntoConstraints = false
+    //            border.heightAnchor.constraint(equalToConstant: 1).isActive = true
+    //
+    //            nearbySpotStackView.addArrangedSubview(nearbySpotStack)
+    //            nearbySpotStackView.addArrangedSubview(border)
+    //        }
+    //    }
     
     
     /// 근처 명소 데이터를 보여주는 UI 설정 함수
-    func createHorizontalNearbyStackView(image: String?, title: String?, category: String?, address: String?) -> UIStackView {
-        
-        
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.spacing = 10
-        stackView.alignment = .trailing
-        stackView.distribution = .fillProportionally
-        //        stackView.layer.borderWidth = 1
-        //        stackView.layer.borderColor = UIColor.label.cgColor
-        stackView.layer.cornerRadius = 10
-        stackView.clipsToBounds = true
-        // 패딩 효과를 주는 layoutMargins 설정
-        stackView.layoutMargins = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
-        stackView.isLayoutMarginsRelativeArrangement = true // 패딩 적용
-        
-        
-        var checkImageView = UIImageView()
-        
-        if let imagePath = image {
-            let imageView = UIImageView()
-            imageView.image = UIImage(named: imagePath)
-            imageView.translatesAutoresizingMaskIntoConstraints = false
-            imageView.widthAnchor.constraint(equalToConstant: 120).isActive = true
-            imageView.heightAnchor.constraint(equalToConstant: 120).isActive = true
-            imageView.layer.cornerRadius = 10
-            imageView.clipsToBounds = true
-            checkImageView = imageView
-        }
-        
-        
-        let titleLabel = UILabel()
-        titleLabel.text = title
-        titleLabel.font = .systemFont(ofSize: 16, weight: .bold)
-        
-        let categoryLabel = UILabel()
-        categoryLabel.text = category
-        categoryLabel.font = .systemFont(ofSize: 12, weight: .regular)
-        
-        let addressLabel = UILabel()
-        addressLabel.text = address
-        addressLabel.numberOfLines = 0
-        addressLabel.font = .systemFont(ofSize: 12, weight: .medium)
-        
-        
-        let findwayButton = UIButton(type: .system)
-        let findwayconfigure = UIImage.SymbolConfiguration(pointSize: 20)
-        let findwayimage = UIImage(systemName: "location.circle", withConfiguration: findwayconfigure)
-        findwayButton.setImage(findwayimage, for: .normal)
-        findwayButton.tintColor = .label
-        
-        
-        let shareButton = UIButton(type: .system)
-        let shareconfigure = UIImage.SymbolConfiguration(pointSize: 20)
-        let shareimage = UIImage(systemName: "square.and.arrow.up.circle", withConfiguration: shareconfigure)
-        shareButton.setImage(shareimage, for: .normal)
-        shareButton.tintColor = .label
-        
-        let bookMarkButton = UIButton(type: .system)
-        let bookMarkconfigure = UIImage.SymbolConfiguration(pointSize: 20)
-        let bookMarkimage = UIImage(systemName: "bookmark.circle", withConfiguration: bookMarkconfigure)
-        bookMarkButton.setImage(bookMarkimage, for: .normal)
-        bookMarkButton.tintColor = .label
-        
-        let spaceView = UIView()
-        spaceView.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        spaceView.backgroundColor = .clear
-        
-        let buttonStackView = UIStackView(arrangedSubviews: [findwayButton, shareButton, bookMarkButton, spaceView])
-        buttonStackView.axis = .horizontal
-        buttonStackView.spacing = 20
-        
-        let labelStackView = UIStackView(arrangedSubviews: [titleLabel, categoryLabel, addressLabel, buttonStackView])
-        labelStackView.axis = .vertical
-        labelStackView.spacing = 5
-        
-        stackView.addArrangedSubview(labelStackView)
-        stackView.addArrangedSubview(checkImageView)
-        
-        return stackView
-    }
+    //    func createHorizontalNearbyStackView(image: String?, title: String?, category: String?, address: String?) -> UIStackView {
+    //
+    //
+    //        let stackView = UIStackView()
+    //        stackView.axis = .horizontal
+    //        stackView.spacing = 10
+    //        stackView.alignment = .trailing
+    //        stackView.distribution = .fillProportionally
+    //        //        stackView.layer.borderWidth = 1
+    //        //        stackView.layer.borderColor = UIColor.label.cgColor
+    //        stackView.layer.cornerRadius = 10
+    //        stackView.clipsToBounds = true
+    //        // 패딩 효과를 주는 layoutMargins 설정
+    //        stackView.layoutMargins = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+    //        stackView.isLayoutMarginsRelativeArrangement = true // 패딩 적용
+    //
+    //
+    //        var checkImageView = UIImageView()
+    //
+    //        if let imagePath = image {
+    //            let imageView = UIImageView()
+    //            imageView.image = UIImage(named: imagePath)
+    //            imageView.translatesAutoresizingMaskIntoConstraints = false
+    //            imageView.widthAnchor.constraint(equalToConstant: 120).isActive = true
+    //            imageView.heightAnchor.constraint(equalToConstant: 120).isActive = true
+    //            imageView.layer.cornerRadius = 10
+    //            imageView.clipsToBounds = true
+    //            checkImageView = imageView
+    //        }
+    //
+    //
+    //        let titleLabel = UILabel()
+    //        titleLabel.text = title
+    //        titleLabel.font = .systemFont(ofSize: 16, weight: .bold)
+    //
+    //        let categoryLabel = UILabel()
+    //        categoryLabel.text = category
+    //        categoryLabel.font = .systemFont(ofSize: 12, weight: .regular)
+    //
+    //        let addressLabel = UILabel()
+    //        addressLabel.text = address
+    //        addressLabel.numberOfLines = 0
+    //        addressLabel.font = .systemFont(ofSize: 12, weight: .medium)
+    //
+    //
+    //        let findwayButton = UIButton(type: .system)
+    //        let findwayconfigure = UIImage.SymbolConfiguration(pointSize: 20)
+    //        let findwayimage = UIImage(systemName: "location.circle", withConfiguration: findwayconfigure)
+    //        findwayButton.setImage(findwayimage, for: .normal)
+    //        findwayButton.tintColor = .label
+    //
+    //
+    //        let shareButton = UIButton(type: .system)
+    //        let shareconfigure = UIImage.SymbolConfiguration(pointSize: 20)
+    //        let shareimage = UIImage(systemName: "square.and.arrow.up.circle", withConfiguration: shareconfigure)
+    //        shareButton.setImage(shareimage, for: .normal)
+    //        shareButton.tintColor = .label
+    //
+    //        let bookMarkButton = UIButton(type: .system)
+    //        let bookMarkconfigure = UIImage.SymbolConfiguration(pointSize: 20)
+    //        let bookMarkimage = UIImage(systemName: "bookmark.circle", withConfiguration: bookMarkconfigure)
+    //        bookMarkButton.setImage(bookMarkimage, for: .normal)
+    //        bookMarkButton.tintColor = .label
+    //
+    //        let spaceView = UIView()
+    //        spaceView.widthAnchor.constraint(equalToConstant: 80).isActive = true
+    //        spaceView.backgroundColor = .clear
+    //
+    //        let buttonStackView = UIStackView(arrangedSubviews: [findwayButton, shareButton, bookMarkButton, spaceView])
+    //        buttonStackView.axis = .horizontal
+    //        buttonStackView.spacing = 20
+    //
+    //        let labelStackView = UIStackView(arrangedSubviews: [titleLabel, categoryLabel, addressLabel, buttonStackView])
+    //        labelStackView.axis = .vertical
+    //        labelStackView.spacing = 5
+    //
+    //        stackView.addArrangedSubview(labelStackView)
+    //        stackView.addArrangedSubview(checkImageView)
+    //
+    //        return stackView
+    //    }
     
 }
+
+
+class IntrinsicTableView: UITableView {
+    
+    override var intrinsicContentSize: CGSize {
+        // 현재 섹션에 표시되는 셀의 개수를 계산합니다.
+        let numberOfRows = self.numberOfRows(inSection: 0)
+        
+        // 셀의 고정된 높이 (예: 150)
+        let cellHeight: CGFloat = 150.0
+        
+        // 테이블 뷰의 전체 높이 = 셀 개수 * 셀 높이
+        let totalHeight = CGFloat(numberOfRows) * cellHeight
+        
+        // 테이블 뷰의 컨텐츠 사이즈 설정
+        return CGSize(width: self.contentSize.width, height: totalHeight)
+    }
+    
+    // 테이블 뷰의 내용을 리로드할 때마다 intrinsicContentSize가 재계산되도록 트리거
+    override func reloadData() {
+        super.reloadData()
+        self.invalidateIntrinsicContentSize()
+    }
+}
+
