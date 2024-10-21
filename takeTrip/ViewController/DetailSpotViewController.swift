@@ -22,6 +22,8 @@ class DetailSpotViewController: UIViewController {
     // nearbyTable 더보기 관련 샘플데이터
     var allData = ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Item 8", "Item 9", "Item 10"]
     
+    var nearbySpotList: [AttractionItem] = []
+    
     
     
     // MARK: - UI Components
@@ -40,7 +42,7 @@ class DetailSpotViewController: UIViewController {
         configureConstraints()
         configureCollectionView()
         configureTableView()
-        configureButton()
+        //configureButton()
         
         didTappedLoadMoreButton()
         
@@ -74,8 +76,8 @@ class DetailSpotViewController: UIViewController {
     func configureTableView() {
         detailSpotView.nearbyTableView.delegate = self
         detailSpotView.nearbyTableView.dataSource = self
-        detailSpotView.nearbyTableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        //detailSpotView.nearbyTableView.register(NearbySpotTableViewCell.self, forCellReuseIdentifier: NearbySpotTableViewCell.identifier)
+        //detailSpotView.nearbyTableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        detailSpotView.nearbyTableView.register(NearbySpotTableViewCell.self, forCellReuseIdentifier: NearbySpotTableViewCell.identifier)
     }
     
     /// detailSpotView 내의  button에 addTarget 호출하는 함수
@@ -85,14 +87,14 @@ class DetailSpotViewController: UIViewController {
     
     /// 버튼 텍스트 업데이트 및 설정
     func configureButton() {
-        // 페이지 수 계산
-        let totalPages = Int(ceil(Double(allData.count) / Double(pageSize)))
+        // 총 페이지 수 계산 (총 아이템이 0인 경우, 최소 1 페이지로 표시)
+        let totalPages = max(1, Int(ceil(Double(nearbySpotList.count) / Double(pageSize))))
         let currentPage = (currentStartIndex / pageSize) + 1
         
         // UIButton 설정
         var configuration = UIButton.Configuration.filled()
         var titleContainer = AttributeContainer()
-        titleContainer.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+        titleContainer.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         
         configuration.baseForegroundColor = .label
         configuration.baseBackgroundColor = .secondarySystemBackground
@@ -113,7 +115,7 @@ class DetailSpotViewController: UIViewController {
     /// 버튼 클릭 시 호출되는 메서드
     @objc func loadMoreData() {
         // 페이지 업데이트
-        if currentStartIndex + pageSize < allData.count {
+        if currentStartIndex + pageSize < nearbySpotList.count {
             currentStartIndex += pageSize
         } else {
             currentStartIndex = 0
@@ -168,6 +170,7 @@ class DetailSpotViewController: UIViewController {
         }
     }
     
+    /// spot의 기본 정보 + 소개글을 설정하는 함수
     func getSpotCommonInfo(with item: AttractionItem?) {
         
         guard let contentId = item?.contentid,
@@ -204,6 +207,7 @@ class DetailSpotViewController: UIViewController {
         }
     }
     
+    /// spot의 소개글을 가져오는 함수
     func getOverview(with item: AttractionItem?) {
         
         guard let contentId = item?.contentid,
@@ -225,8 +229,29 @@ class DetailSpotViewController: UIViewController {
                 print(error.localizedDescription)
             }
         }
-        
     }
+    
+    /// spot 근처 관련 명소 리스트 불러오는 함수
+    func getNearbySpotList(with item: AttractionItem?) {
+        guard let spotMapX = item?.mapx,
+              let spotMapY = item?.mapy else { return }
+        
+        NetworkManager.shared.getLocationBasedList(mapX: spotMapX, mapY: spotMapY) {  results in
+            switch results {
+            case .success(let item):
+                self.nearbySpotList = item.response.body.items.item
+                
+                DispatchQueue.main.async {
+                    self.detailSpotView.nearbyTableView.reloadData()
+                    self.configureButton()
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    
     
     /// <br> 태그를 제거하는 함수
     func removeHTMLTags(from text: String) -> String {
@@ -291,22 +316,25 @@ extension DetailSpotViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        let remainingDataCount = allData.count - currentStartIndex
+        let remainingDataCount = nearbySpotList.count - currentStartIndex
         
         return min(pageSize, remainingDataCount)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //        guard let cell = tableView.dequeueReusableCell(withIdentifier: NearbySpotTableViewCell.identifier, for: indexPath) as? NearbySpotTableViewCell else { return UITableViewCell() }
-        //
-        //        cell.selectionStyle = .none
-        //
-        //        return cell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: NearbySpotTableViewCell.identifier, for: indexPath) as? NearbySpotTableViewCell else { return UITableViewCell() }
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         let index = currentStartIndex + indexPath.row
-        cell.textLabel?.text = allData[index]
+        let selectedItem = nearbySpotList[index]
+        cell.configureTableView(with: selectedItem)
+        
+        cell.selectionStyle = .none
+        
         return cell
+        
+        // let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        // let index = currentStartIndex + indexPath.row
+        // cell.textLabel?.text = allData[index]
         
     }
     

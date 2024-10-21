@@ -33,7 +33,7 @@ class DetailSpotView: UIView {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .systemBackground
-        view.layer.cornerRadius = 20
+        view.layer.cornerRadius = 10
         view.layer.maskedCorners = [.layerMinXMaxYCorner,
                                     .layerMaxXMaxYCorner]  // 좌, 우 하단 적용
         return view
@@ -106,7 +106,7 @@ class DetailSpotView: UIView {
     let spotInfoView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.cornerRadius = 20
+        view.layer.cornerRadius = 10
         view.backgroundColor = .systemBackground
         view.clipsToBounds = true
         return view
@@ -125,7 +125,7 @@ class DetailSpotView: UIView {
     let spotOverviewView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.cornerRadius = 20
+        view.layer.cornerRadius = 10
         view.backgroundColor = .systemBackground
         view.clipsToBounds = true
         return view
@@ -201,7 +201,7 @@ class DetailSpotView: UIView {
     let nearbySpotView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.cornerRadius = 20
+        view.layer.cornerRadius = 10
         view.backgroundColor = .systemBackground
         view.clipsToBounds = true
         return view
@@ -240,7 +240,6 @@ class DetailSpotView: UIView {
     let nearbyTableView: IntrinsicTableView = {
         let tableView = IntrinsicTableView(frame: .zero)
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = .systemRed
         tableView.isScrollEnabled = false
         tableView.separatorStyle = .none
         return tableView
@@ -250,7 +249,7 @@ class DetailSpotView: UIView {
         var configuration = UIButton.Configuration.filled()
         configuration.baseBackgroundColor = .secondarySystemBackground
         configuration.baseForegroundColor = .label
-        configuration.cornerStyle = .medium
+        configuration.cornerStyle = .large
         
         configuration.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
         
@@ -435,7 +434,7 @@ class DetailSpotView: UIView {
             button.leadingAnchor.constraint(equalTo: nearbySpotView.leadingAnchor,constant: 10),
             button.trailingAnchor.constraint(equalTo: nearbySpotView.trailingAnchor, constant: -10),
             button.topAnchor.constraint(equalTo: nearbyTableView.bottomAnchor, constant: 10),
-            button.heightAnchor.constraint(equalToConstant: 45),
+            button.heightAnchor.constraint(equalToConstant: 40),
             button.bottomAnchor.constraint(equalTo: nearbySpotView.bottomAnchor, constant: -10)
         ]
     

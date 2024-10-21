@@ -205,4 +205,59 @@ class NetworkManager {
         }
         task.resume()
     }
+    
+    
+    func getLocationBasedList(
+        pageNo: String = "1",
+        numOfRows: String = "9",
+        mapX: String,
+        mapY: String,
+        radius: String = "1000",
+        completion: @escaping (Result<AttractionResponse, Error>) -> Void
+    ) {
+        // URLComponents 생성
+        var components = URLComponents(string: "\(Constants.base_URL)/locationBasedList1")
+        
+        // 쿼리 아이템 설정
+        components?.queryItems = [
+            URLQueryItem(name: "serviceKey", value: Constants.api_key),
+            URLQueryItem(name: "numOfRows", value: numOfRows),
+            URLQueryItem(name: "pageNo", value: pageNo),
+            URLQueryItem(name: "MobileOS", value: "iOS"),
+            URLQueryItem(name: "MobileApp", value: "takeTrip"),
+            URLQueryItem(name: "_type", value: "json"),
+            URLQueryItem(name: "listYN", value: "Y"),
+            URLQueryItem(name: "arrange", value: "R"),  // 정렬 방식 "A"로 설정
+            URLQueryItem(name: "mapX", value: mapX),    // 위도 좌표
+            URLQueryItem(name: "mapY", value: mapY),    // 경도 좌표
+            URLQueryItem(name: "radius", value: radius) // 검색 반경
+        ]
+        
+        // 퍼센트 인코딩 후 "+"를 "%2B"로 대체
+        if let encodedQuery = components?.percentEncodedQuery?.replacingOccurrences(of: "%25", with: "%") {
+            components?.percentEncodedQuery = encodedQuery
+        }
+        
+        // URL 생성
+        guard let url = components?.url else { return }
+        
+        let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
+            guard let data = data, error == nil else {
+                print("Network error: \(String(describing: error))")
+                return completion(.failure(error!))
+            }
+            
+            do {
+                let results = try JSONDecoder().decode(AttractionResponse.self, from: data)
+                completion(.success(results))
+            } catch {
+                print("Decoding error: \(error)")
+                completion(.failure(error))
+            }
+        }
+        task.resume()
+    }
+
+    
+    
 }

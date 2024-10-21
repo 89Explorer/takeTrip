@@ -61,8 +61,10 @@ struct AttractionItem: Codable {
     let telname: String?
     let homepage: String?
     let title: String?
-    let zipcode: String
+    let zipcode: String?
     let overview: String?
+    
+    let dist: String?
 }
 
 

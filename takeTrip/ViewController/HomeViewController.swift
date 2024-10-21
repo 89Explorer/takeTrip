@@ -111,6 +111,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource ,HomeFe
         detailVC.detailSpotView.getDetail(with: selectedItem)
         detailVC.getSpotCommonInfo(with: selectedItem)
         detailVC.getOverview(with: selectedItem)
+        detailVC.getNearbySpotList(with: selectedItem)
         navigationController?.pushViewController(detailVC, animated: true)
     }
     
