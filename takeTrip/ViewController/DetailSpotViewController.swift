@@ -42,7 +42,7 @@ class DetailSpotViewController: UIViewController {
         configureConstraints()
         configureCollectionView()
         configureTableView()
-        //configureButton()
+        configureNavigation()
         
         didTappedLoadMoreButton()
         
@@ -78,6 +78,12 @@ class DetailSpotViewController: UIViewController {
         detailSpotView.nearbyTableView.dataSource = self
         //detailSpotView.nearbyTableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         detailSpotView.nearbyTableView.register(NearbySpotTableViewCell.self, forCellReuseIdentifier: NearbySpotTableViewCell.identifier)
+    }
+    
+    func configureNavigation() {
+        navigationItem.title = "상세페이지"
+        navigationController?.navigationBar.tintColor = .label
+        navigationController?.navigationBar.topItem?.title = ""
     }
     
     /// detailSpotView 내의  button에 addTarget 호출하는 함수

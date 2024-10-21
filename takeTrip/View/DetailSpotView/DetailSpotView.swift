@@ -281,7 +281,7 @@ class DetailSpotView: UIView {
         
         
         // 스팟 정보를 설정하는 곳에서 호출
-        configureSpotInfo(spotAddress: "경기도 고양시 덕양구 화정동 111-2번지 화정역", spotPhone: "123-1234-1234", spotWebsite: nil, spotOperateTime: "오전 09:00 ~ 오후 18:00")
+        // configureSpotInfo(spotAddress: "경기도 고양시 덕양구 화정동 111-2번지 화정역", spotPhone: "123-1234-1234", spotWebsite: nil, spotOperateTime: "오전 09:00 ~ 오후 18:00")
       
 
         moreOverviewButton.addTarget(self, action: #selector(toggleTextExpansion), for: .touchUpInside)
