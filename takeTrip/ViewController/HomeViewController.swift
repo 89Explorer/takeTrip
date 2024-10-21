@@ -11,7 +11,8 @@ class HomeViewController: UIViewController {
     
     // MARK: - Variables
     // 각 섹션별로 타이틀 설정
-    var categories: [String] = ["날이 쌀쌀해질 때 생각나는 온천 여행 ", "아이와 함께 가는 테마 여행", "역사와 문화가 살아 숨쉬는 박물관 여행", "걷고 쉬고 사색하는 도보 코스", "그 옛날 정을 느끼고 싶다면, 시장 여행"]
+//    var categories: [String] = ["날이 쌀쌀해질 때 생각나는 온천 여행 ", "아이와 함께 가는 테마 여행", "역사와 문화가 살아 숨쉬는 박물관 여행", "걷고 쉬고 사색하는 도보 코스", "그 옛날 정을 느끼고 싶다면, 시장 여행"]
+    var categories: [String] = ["날이 쌀쌀해질 때 생각나는 온천 여행 ", "아이와 함께 가는 테마 여행", "역사와 문화가 살아 숨쉬는 박물관 여행", "그 옛날 정을 느끼고 싶다면, 시장 여행"]
     
     // 데이터를 랜덤으로 가져오기 위해 무작위로 페이지 설정 변수
     let randomPage = String(Int.random(in: 1...15))
@@ -83,6 +84,7 @@ class HomeViewController: UIViewController {
     
     
     
+    
     // MARK: - Layouts
     /// UI 요소의 제약조건을 설정하는 함수
     private func configureConstraints() {
@@ -105,7 +107,10 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource ,HomeFe
     func didSelectItem(_ selectedItem: AttractionItem) {
         let detailVC = DetailSpotViewController()
         detailVC.selectedSpotItem = selectedItem
-        
+        detailVC.getDetailImageList(with: selectedItem)
+        detailVC.detailSpotView.getDetail(with: selectedItem)
+        detailVC.getSpotCommonInfo(with: selectedItem)
+        detailVC.getOverview(with: selectedItem)
         navigationController?.pushViewController(detailVC, animated: true)
     }
     
@@ -136,9 +141,11 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource ,HomeFe
         case 2:
             spotParameters = .museumCollection
         case 3:
-            spotParameters = .tripcourseCollection
-        case 4:
             spotParameters = .marketCollection
+//        case 3:
+//            spotParameters = .tripcourseCollection
+//        case 4:
+//            spotParameters = .marketCollection
         default:
             spotParameters = .spaCollection
         }
@@ -207,7 +214,7 @@ enum SpotPrameters {
     case spaCollection
     case themaCollection
     case museumCollection
-    case tripcourseCollection
+    //case tripcourseCollection
     case marketCollection
     
     var contentTypeId: String {
@@ -218,8 +225,8 @@ enum SpotPrameters {
             return "12"
         case .museumCollection:
             return "14"
-        case .tripcourseCollection:
-            return "25"
+//        case .tripcourseCollection:
+//            return "25"
         case .marketCollection:
             return "38"
         }
@@ -233,8 +240,8 @@ enum SpotPrameters {
             return "A02"
         case .museumCollection:
             return "A02"
-        case .tripcourseCollection:
-            return "C01"
+//        case .tripcourseCollection:
+//            return "C01"
         case .marketCollection:
             return "A04"
         }
@@ -248,8 +255,8 @@ enum SpotPrameters {
             return "A0202"
         case .museumCollection:
             return "A0206"
-        case .tripcourseCollection:
-            return "C0115"
+//        case .tripcourseCollection:
+//            return "C0115"
         case .marketCollection:
             return "A0401"
         }
@@ -263,8 +270,8 @@ enum SpotPrameters {
             return "A02020600"
         case .museumCollection:
             return "A02060100"
-        case .tripcourseCollection:
-            return "C01150001"
+//        case .tripcourseCollection:
+//            return "C01150001"
         case .marketCollection:
             return "A04010200"
         }

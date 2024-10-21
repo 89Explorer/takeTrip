@@ -11,6 +11,7 @@ class DetailSpotViewController: UIViewController {
     
     // MARK: - Variables
     var selectedSpotItem: AttractionItem?
+    var detailImages: [String] = []
     
     // nearbyTable 더보기 관련 현재 보여줄 데이터의 시작 인덱스
     var currentStartIndex: Int = 0
@@ -42,7 +43,7 @@ class DetailSpotViewController: UIViewController {
         configureButton()
         
         didTappedLoadMoreButton()
-        print(selectedSpotItem?.contentid)
+        
     }
     
     
@@ -66,7 +67,7 @@ class DetailSpotViewController: UIViewController {
     func configureCollectionView() {
         detailSpotView.detailImageCollectionView.delegate = self
         detailSpotView.detailImageCollectionView.dataSource = self
-        detailSpotView.detailImageCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        detailSpotView.detailImageCollectionView.register(DetailImageCollectionViewCell.self, forCellWithReuseIdentifier: DetailImageCollectionViewCell.identifier)
     }
     
     /// 테이블뷰 관련 설정을 호출하는 메서드
@@ -77,11 +78,12 @@ class DetailSpotViewController: UIViewController {
         //detailSpotView.nearbyTableView.register(NearbySpotTableViewCell.self, forCellReuseIdentifier: NearbySpotTableViewCell.identifier)
     }
     
+    /// detailSpotView 내의  button에 addTarget 호출하는 함수
     func didTappedLoadMoreButton() {
         detailSpotView.button.addTarget(self, action: #selector(loadMoreData), for: .touchUpInside)
     }
     
-    // 버튼 텍스트 업데이트 및 설정
+    /// 버튼 텍스트 업데이트 및 설정
     func configureButton() {
         // 페이지 수 계산
         let totalPages = Int(ceil(Double(allData.count) / Double(pageSize)))
@@ -103,12 +105,12 @@ class DetailSpotViewController: UIViewController {
         configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 15)
         configuration.imagePadding = 10
         configuration.titleAlignment = .leading
-
+        
         // 버튼 설정 적용
         detailSpotView.button.configuration = configuration
     }
     
-    // 버튼 클릭 시 호출되는 메서드
+    /// 버튼 클릭 시 호출되는 메서드
     @objc func loadMoreData() {
         // 페이지 업데이트
         if currentStartIndex + pageSize < allData.count {
@@ -119,23 +121,161 @@ class DetailSpotViewController: UIViewController {
         
         // 테이블뷰 갱신
         detailSpotView.nearbyTableView.reloadData()
-
+        
         // 버튼 텍스트 갱신
         configureButton()
     }
+    
+    /// 외부 API를 통해 데이터를 받아올 때, 데이터를 받아오는데 오래 걸릴 것을 예상해, 네트워크 요청 실패 시 반복 시도를 추가
+    func getDetailImageList(with item: AttractionItem?, retryCount: Int = 3) {
+        guard let contentId = item?.contentid else { return }
+        
+        NetworkManager.shared.getSpotImage(contentId: contentId) { [weak self] results in
+            switch results {
+            case .success(let items):
+                guard let imageItem = items.response.body.items?.item else { return }
+                if imageItem.isEmpty {
+                    self?.setDefaultImage()
+                } else {
+                    
+                    DispatchQueue.main.async {
+                        self?.detailImages = (items.response.body.items?.item?.compactMap({ $0.originimgurl }))!
+                        self?.detailSpotView.detailImageCollectionView.reloadData()
+                    }
+                }
+                
+            case .failure(let error):
+                if retryCount > 0 {
+                    self?.getDetailImageList(with: self?.selectedSpotItem, retryCount: retryCount - 1)
+                } else {
+                    self?.setDefaultImage()
+                    DispatchQueue.main.async {
+                        self?.detailSpotView.detailImageCollectionView.reloadData()
+                    }
+                    print(error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    
+    /// 기본 이미지 URL 또는 로컬 이미지 파일의 이름을 detailMainImage에 배열 형태로 추가
+    func setDefaultImage() {
+        if let defaultImage = selectedSpotItem?.firstimage {
+            detailImages = [defaultImage]    // 기본 이미지의 URL 또는 로컬 이미지의 이름
+        } else {
+            detailImages = []
+        }
+    }
+    
+    func getSpotCommonInfo(with item: AttractionItem?) {
+        
+        guard let contentId = item?.contentid,
+              let contentTypeId = item?.contenttypeid else { return }
+        
+        NetworkManager.shared.getDetailIntro(contentId: contentId, contentTypeId: contentTypeId) { [weak self] results in
+            switch results {
+            case .success(let items):
+                guard let infoItems = items.response.body.items?.item else { return }
+                let spotPhoneNumber = infoItems[0].phoneNumber
+                let spotOperateTime = infoItems[0].operatingTime
+                let spotAddress = self?.detailSpotView.spotAddress
+                let spotHomePage = self?.detailSpotView.spotHomePage
+                
+                var spotOverView = self?.detailSpotView.spotOverview
+                
+                if spotOverView?.count == 0 {
+                    spotOverView = "소개글이 없어요 😀"
+                } else {
+                    spotOverView = self?.detailSpotView.spotOverview
+                }
+                
+                let modifiedOperateTime = self?.removeHTMLTags(from: spotOperateTime!)
+                
+                DispatchQueue.main.async {
+                    self?.detailSpotView.configureSpotInfo(spotAddress: spotAddress, spotPhone: spotPhoneNumber, spotWebsite: spotHomePage, spotOperateTime: modifiedOperateTime)
+                    self?.detailSpotView.spotOverviewValue.text = spotOverView
+                }
+                
+                
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    func getOverview(with item: AttractionItem?) {
+        
+        guard let contentId = item?.contentid,
+              let contenttypeid = item?.contenttypeid else { return }
+        
+        NetworkManager.shared.getCommonData(contentId: contentId, contentTypeId: contenttypeid) { [weak self] results in
+            switch results {
+            case .success(let item):
+                
+                guard let spotOverview = item.response.body.items.item[0].overview,
+                      let spotHomePage = item.response.body.items.item[0].homepage else { return }
+                
+                let spotURL = self?.extractURL(from: spotHomePage)
+                
+                self?.detailSpotView.spotOverview = spotOverview
+                self?.detailSpotView.spotHomePage = spotURL ?? ""
+                
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+        
+    }
+    
+    /// <br> 태그를 제거하는 함수
+    func removeHTMLTags(from text: String) -> String {
+        // <br> 태그를 줄바꿈으로 바꾸고, 다른 HTML 태그는 모두 제거합니다.
+        var cleanedText = text.replacingOccurrences(of: "<br>", with: " ")
+        cleanedText = cleanedText.replacingOccurrences(of: "<br/>", with: "")
+        
+        // 추가로, 다른 HTML 태그들도 제거하고 싶다면, 아래 정규식을 사용하여 모든 태그를 제거할 수 있습니다.
+        if let regex = try? NSRegularExpression(pattern: "<[^>]+>", options: .caseInsensitive) {
+            cleanedText = regex.stringByReplacingMatches(in: cleanedText, options: [], range: NSRange(location: 0, length: cleanedText.count), withTemplate: "")
+        }
+        
+        return cleanedText
+    }
+    
+    /// HTML 태그를 제거하고 실제 URL 주소만 추출하는 함수
+    func extractURL(from htmlString: String) -> String? {
+        // 정규식을 사용하여 HTML 태그 내 URL을 추출
+        let pattern = #"href="([^"]+)""#
+        
+        do {
+            let regex = try NSRegularExpression(pattern: pattern, options: [])
+            if let match = regex.firstMatch(in: htmlString, options: [], range: NSRange(htmlString.startIndex..., in: htmlString)) {
+                if let range = Range(match.range(at: 1), in: htmlString) {
+                    return String(htmlString[range])
+                }
+            }
+        } catch {
+            print("Regex error: \(error)")
+        }
+        return nil
+    }
+    
+    
 }
 
 
 // MARK: - UICollectionViewDelegate, UICollectionViewDataSource
 extension DetailSpotViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 5
+        return detailImages.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
         
-        cell.backgroundColor = .systemRed
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailImageCollectionViewCell.identifier, for: indexPath) as? DetailImageCollectionViewCell else { return UICollectionViewCell() }
+        
+        let imageURL = detailImages[indexPath.item]
+        cell.getDetailImage(with: imageURL)
         
         return cell
     }

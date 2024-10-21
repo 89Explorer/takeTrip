@@ -102,7 +102,9 @@ class FeedCollectionViewCell: UICollectionViewCell {
     // MARK: - Functions
     /// 각 컬렉션셀에 설정하는 함수
     func configureCollectionViewCell(with item: AttractionItem) {
-        guard let imagePath = item.firstimage, let title = item.title, let address = item.addr1 else { return }
+        guard let imagePath = item.firstimage, let title = item.title else { return }
+        
+        let address = item.addr1
         
         let securePosterURL = imagePath.replacingOccurrences(of: "http://", with: "https://")
         

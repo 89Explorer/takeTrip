@@ -11,8 +11,13 @@ class DetailSpotView: UIView {
     
     // MARK: - Variables
     private var isExpanded: Bool = false // 더보기 상태 트래킹
+    var selectedSpotInfo: [InfoItem] = []
     
-    
+    var spotAddress: String = ""
+    var spotPhoneNumber: String = ""
+    var spotOperateTime: String = ""
+    var spotHomePage: String = ""
+    var spotOverview: String = ""
     
     // MARK: - UI Components
     let basicView: UIScrollView = {
@@ -43,7 +48,7 @@ class DetailSpotView: UIView {
         return stackView
     }()
     
-    let spotTitle: UILabel = {
+    var spotTitle: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "평택 메타세콰이어"
@@ -53,7 +58,7 @@ class DetailSpotView: UIView {
         return label
     }()
     
-    let spotCategory: UILabel = {
+    var spotCategory: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "공원"
@@ -169,8 +174,8 @@ class DetailSpotView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.text = "자인사는 김상수(법명 해공)가 서울특별시 종로구 명륜동에 창건하였다가 1964년 현 위치인 경기도 포천시 영북면 산정리 71번지에 약 5.4m(18척)의 석고 미륵불을 조성하면서 이전한 절이다. 산정 호수 뒷산인 명성산에 자리한 자인사는 명당의 상징이자 궁예와 왕건의 전설이 깃든 잿터 바위를 경내에 두고 있다. 자인사라는 이름은 궁예의 미륵 세계를 상징하는 [자]와 영계에서나마 궁예와 왕건의 화해를 기원하는 [인]을 합친 것이라고 한다. 승려인 정영도가 1993년 극락보전을, 1998년 미륵 좌불을 조성하여 현재에 이른다. 명성산 기슭에 자리 잡고 있으며 일주문을 지나면 현대식 건물의 큰 요사채가 보이고, 극락보전 뒤로 책을 펼쳐놓은 것처럼 보이는 책바위가 장관을 이룬다. 전각으로는 약사전, 관음전, 삼성각, 종각 그리고 극락보전이 있다. 입구쪽에는 잿터바위가 놓여있는데 이는 서기 905년 완건이 태봉국 궁예왕의 수하로 있을 때 궁예왕의 명으로 후백제의 금성(나주)를 공격하러 가기 전에 이 바위에서 산제를 지낸 후 현몽을 받아 승전하였다고 전해진다. 후삼국을 통일한 후에도 태조 왕건은 국가의 태평과 백성의 안녕을 기원할 때 이 바위를 찾았으며, 지금도 재를 올린터, 잿터바위라 하여 이곳에서 기도를 하면 소원을 이루게 된다고 한다. 또한 경내에서 솟아나는 샘물은 맛좋기로 소문나 있다."
-        label.numberOfLines = 5
+        label.text = "소개글이 없어요 😅"
+        label.numberOfLines = 1
         label.textColor = .label
         label.textAlignment = .left
         return label
@@ -271,14 +276,15 @@ class DetailSpotView: UIView {
     // MARK: - Initializations
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         backgroundColor = .secondarySystemBackground
         configureConstraints()
         
         
         // 스팟 정보를 설정하는 곳에서 호출
         configureSpotInfo(spotAddress: "경기도 고양시 덕양구 화정동 111-2번지 화정역", spotPhone: "123-1234-1234", spotWebsite: nil, spotOperateTime: "오전 09:00 ~ 오후 18:00")
-        
-        
+      
+
         moreOverviewButton.addTarget(self, action: #selector(toggleTextExpansion), for: .touchUpInside)
     }
     
@@ -376,7 +382,7 @@ class DetailSpotView: UIView {
             spotOverviewView.trailingAnchor.constraint(equalTo: basicView.trailingAnchor),
             spotOverviewView.topAnchor.constraint(equalTo: spotInfoView.bottomAnchor, constant: 10),
             spotOverviewView.widthAnchor.constraint(equalTo: basicView.widthAnchor),
-            spotOverviewView.heightAnchor.constraint(greaterThanOrEqualToConstant: 120)
+            spotOverviewView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50)
         ]
         
         let spotOverviewStackViewConstraints = [
@@ -550,7 +556,7 @@ class DetailSpotView: UIView {
         
         return stackView
     }
-    
+
     
     /// Overview의 소개 글을 처음에는 5줄, 누르면 텍스트 길이에 맞게 늘려주는 함수
     @objc private func toggleTextExpansion() {
@@ -560,7 +566,7 @@ class DetailSpotView: UIView {
             spotOverviewValue.numberOfLines = 0 // 전체 텍스트 표시
             moreOverviewButton.setTitle("줄이기", for: .normal)
         } else {
-            spotOverviewValue.numberOfLines = 5 // 5줄로 다시 제한
+            spotOverviewValue.numberOfLines = 1 // 1줄로 다시 제한
             moreOverviewButton.setTitle("더보기", for: .normal)
         }
         
@@ -570,8 +576,21 @@ class DetailSpotView: UIView {
         }
     }
     
+    /// 디테일 화면에 필요한 내용을 입력하는 함수
+    func getDetail(with selectedItem: AttractionItem) {
+        let spotName = selectedItem.title
+        let spotCategory = selectedItem.cat3
+        
+        if let categoryEnum = ThirdCategory(rawValue: spotCategory) {
+            self.spotCategory.text = categoryEnum.displayName
+        } else {
+            self.spotCategory.text = ""
+        }
     
-
+        self.spotTitle.text = spotName
+        self.spotAddress = selectedItem.addr1
+        self.spotHomePage = selectedItem.homepage ?? "-"
+    }
     
     
     /// 외부에서 받아온 데이터 중에서 근처 명소 이미지, 이름, 카테고리를 받아와 StackView에 담는 함수 호출
@@ -701,9 +720,10 @@ class IntrinsicTableView: UITableView {
     }
     
     // 테이블 뷰의 내용을 리로드할 때마다 intrinsicContentSize가 재계산되도록 트리거
+    // 이게 있어야지, 10개의 데이터를 3개씩 나눌때 마지막에 1개인데도 높이가 3개로 계산되지 않는다. 
     override func reloadData() {
         super.reloadData()
         self.invalidateIntrinsicContentSize()
     }
+    
 }
-

@@ -39,7 +39,7 @@ struct Items: Codable {
 
 // MARK: - AttractionItem
 struct AttractionItem: Codable {
-    let addr1: String?
+    let addr1: String
     let addr2: String?
     let areacode: String
     let booktour: String?
