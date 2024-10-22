@@ -310,6 +310,13 @@ extension DetailSpotViewController: UICollectionViewDelegate, UICollectionViewDa
         
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+//        let detailImageArray:[String] = detailImages
+        
+        let fullScreenVC = FullScreenImageViewController(images: detailImages, currentIndex: indexPath.item)
+        present(fullScreenVC, animated: true)
+    }
 }
 
 

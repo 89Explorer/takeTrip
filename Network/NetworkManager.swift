@@ -227,7 +227,7 @@ class NetworkManager {
             URLQueryItem(name: "MobileApp", value: "takeTrip"),
             URLQueryItem(name: "_type", value: "json"),
             URLQueryItem(name: "listYN", value: "Y"),
-            URLQueryItem(name: "arrange", value: "R"),  // 정렬 방식 "A"로 설정
+            URLQueryItem(name: "arrange", value: "Q"),  // 
             URLQueryItem(name: "mapX", value: mapX),    // 위도 좌표
             URLQueryItem(name: "mapY", value: mapY),    // 경도 좌표
             URLQueryItem(name: "radius", value: radius) // 검색 반경

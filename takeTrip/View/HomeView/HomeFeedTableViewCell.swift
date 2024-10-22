@@ -108,7 +108,6 @@ extension HomeFeedTableViewCell: UICollectionViewDelegate, UICollectionViewDataS
         
         let selectedItem = selectedSpotItem[indexPath.item]
         delegate?.didSelectItem(selectedItem)
-        
     }
 }
 

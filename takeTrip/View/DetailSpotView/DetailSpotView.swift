@@ -341,7 +341,7 @@ class DetailSpotView: UIView {
         let spotTitleCategoryStackViewConstraints = [
             spotTitleCategoryStackView.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 15),
             spotTitleCategoryStackView.topAnchor.constraint(equalTo: headerView.safeAreaLayoutGuide.topAnchor, constant: 10),
-            spotTitleCategoryStackView.widthAnchor.constraint(equalToConstant: 150)
+            spotTitleCategoryStackView.widthAnchor.constraint(equalToConstant: 250)
         ]
         
         let sharedButtonConstraints = [
@@ -459,7 +459,7 @@ class DetailSpotView: UIView {
         NSLayoutConstraint.activate(nearbySpotImageConstraints)
         NSLayoutConstraint.activate(nearbyTableViewConstraints)
         NSLayoutConstraint.activate(buttonConstraints)
-        
+    
     }
     
     
