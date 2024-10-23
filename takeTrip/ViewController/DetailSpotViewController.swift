@@ -48,6 +48,7 @@ class DetailSpotViewController: UIViewController {
         
         didTappedLoadMoreButton()
         shareButtonCalled()
+        bookMarkButtonCalled()
         
     }
     
@@ -312,6 +313,16 @@ class DetailSpotViewController: UIViewController {
     }
     
     
+    /// 북마크 버튼을 누르는 함수
+    func bookMarkButtonCalled() {
+        detailSpotView.bagButton.addTarget(self, action: #selector(didTappedBookMarkButton), for: .touchUpInside)
+    }
+    
+    @objc func didTappedBookMarkButton(_ sender: Any) {
+        print("bagButton - called")
+    }
+    
+    
     /// <br> 태그를 제거하는 함수
     func removeHTMLTags(from text: String) -> String {
         // <br> 태그를 줄바꿈으로 바꾸고, 다른 HTML 태그는 모두 제거합니다.
@@ -397,11 +408,19 @@ extension DetailSpotViewController: UITableViewDelegate, UITableViewDataSource {
         cell.selectionStyle = .none
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedNearbySpot = nearbySpotList[indexPath.item]
         
-        // let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        // let index = currentStartIndex + indexPath.row
-        // cell.textLabel?.text = allData[index]
-        
+        let detailVC = DetailSpotViewController()
+        detailVC.selectedSpotItem = selectedNearbySpot
+        detailVC.getDetailImageList(with: selectedNearbySpot)
+        detailVC.detailSpotView.getDetail(with: selectedNearbySpot)
+        detailVC.getSpotCommonInfo(with: selectedNearbySpot)
+        detailVC.getOverview(with: selectedNearbySpot)
+        detailVC.getNearbySpotList(with: selectedNearbySpot)
+        navigationController?.pushViewController(detailVC, animated: true)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
