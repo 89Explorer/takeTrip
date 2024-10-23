@@ -20,7 +20,9 @@ class FullScreenImageViewController: UIViewController {
     
     private let closeButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
+        let configure = UIImage.SymbolConfiguration(pointSize: 25)
+        let image = UIImage(systemName: "xmark.circle.fill", withConfiguration: configure)
+        button.setImage(image, for: .normal)
         button.tintColor = .white
         return button
     }()

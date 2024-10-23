@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import SDWebImage
+import LinkPresentation
 
 class DetailSpotViewController: UIViewController {
     
@@ -45,6 +47,7 @@ class DetailSpotViewController: UIViewController {
         configureNavigation()
         
         didTappedLoadMoreButton()
+        shareButtonCalled()
         
     }
     
@@ -257,6 +260,56 @@ class DetailSpotViewController: UIViewController {
         }
     }
     
+    func shareButtonCalled() {
+        detailSpotView.sharedButton.addTarget(self, action: #selector(didTappedSharedButton), for: .touchUpInside)
+    }
+    
+    
+    
+    // MARK: - Actions
+    @objc func didTappedSharedButton(_ sender: Any) {
+
+        guard let contentid = selectedSpotItem?.contentid,
+              let contenttypeid = selectedSpotItem?.contenttypeid,
+              let title = selectedSpotItem?.title,
+              let imageURLString = selectedSpotItem?.firstimage,
+              let spotURL = URL(string: "https://takeTrip.com/spot/\(contenttypeid)/\(contentid)") else { return }
+        
+        // 메시지 텍스트 구성
+        let appName = "[테이크트립]"
+        let messageText = "\(appName) \(title)\n\(spotURL.absoluteString)"
+        
+        // 기본 메시지 텍스트 포함
+        let activityItems: [Any] = [messageText]
+        
+        // 이미지 URL을 https로 변환
+        let securePosterURLString = imageURLString.replacingOccurrences(of: "http://", with: "https://")
+        
+        if let imageURL = URL(string: securePosterURLString) {
+            // 이미지를 비동기적으로 다운로드 후, 완료되면 activityItems에 이미지 추가
+            SDWebImageDownloader.shared.downloadImage(with: imageURL) { (image, data, error, finished) in
+//                if let image = image, finished {
+//                    activityItems.append(image) // 이미지 다운로드 완료 후 추가
+//                }
+                
+                // UIActivityViewController 생성
+                let activityViewController = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+                
+                // iPad에서는 popover 위치 지정
+                activityViewController.popoverPresentationController?.sourceView = self.view
+                
+                // 공유 화면 표시
+                self.present(activityViewController, animated: true, completion: nil)
+            }
+        } else {
+            // 이미지가 없을 경우 기본 텍스트와 URL만 공유
+            let activityViewController = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+            activityViewController.popoverPresentationController?.sourceView = self.view
+
+            // 공유 화면 표시
+            self.present(activityViewController, animated: true, completion: nil)
+        }
+    }
     
     
     /// <br> 태그를 제거하는 함수
@@ -312,7 +365,7 @@ extension DetailSpotViewController: UICollectionViewDelegate, UICollectionViewDa
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        let detailImageArray:[String] = detailImages
+        //        let detailImageArray:[String] = detailImages
         
         let fullScreenVC = FullScreenImageViewController(images: detailImages, currentIndex: indexPath.item)
         present(fullScreenVC, animated: true)
@@ -394,4 +447,57 @@ extension DetailSpotViewController: UITableViewDelegate, UITableViewDataSource {
     //
     //        return footerView
     //    }
+}
+
+
+class ShareItemSource: NSObject, UIActivityItemSource {
+    var title: String
+    var url: URL
+    var imageURL: URL?
+    var messageText: String
+    
+    init(title: String, url: URL, imageURL: URL?, messageText: String) {
+        self.title = title
+        self.url = url
+        self.imageURL = imageURL
+        self.messageText = messageText
+    }
+    
+    // 기본으로 반환할 아이템 (메시지 텍스트)
+    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
+        return messageText
+    }
+    
+    // 활동 타입에 따라 텍스트나 이미지를 반환
+    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
+        // 메시지 앱이면 텍스트만 반환, 다른 앱이면 텍스트 반환
+        if activityType == .message {
+            return messageText // 메시지 앱에서 텍스트만 공유
+        } else {
+            return messageText // 기본적으로 텍스트는 항상 반환
+        }
+    }
+    
+    // 앱 아이콘과 이미지를 메타데이터로 설정
+    func activityViewControllerLinkMetadata(_ activityViewController: UIActivityViewController) -> LPLinkMetadata? {
+        let metadata = LPLinkMetadata()
+        metadata.title = title
+        metadata.originalURL = url
+        
+        // 앱 아이콘 설정
+        if let appIcon = UIImage(named: "taketriplogo") {
+            metadata.iconProvider = NSItemProvider(object: appIcon)
+        }
+        
+        // 이미지 URL이 있으면 SDWebImage로 이미지를 다운로드 (다른 앱용으로)
+        if let imageURL = imageURL {
+            SDWebImageDownloader.shared.downloadImage(with: imageURL) { (image, data, error, finished) in
+                if let image = image, finished {
+                    metadata.imageProvider = NSItemProvider(object: image)
+                }
+            }
+        }
+
+        return metadata
+    }
 }

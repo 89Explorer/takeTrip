@@ -4,6 +4,12 @@
 <dict>
 	<key>NSAppTransportSecurity</key>
 	<dict>
+        
+        <!-- 모든 도메인에서 안전하지 않을 요청 허용 -->
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+        
+        <!-- 특정 도메인 예외 처리 -->
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>apis.data.go.kr</key>
