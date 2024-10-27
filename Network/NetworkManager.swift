@@ -258,6 +258,47 @@ class NetworkManager {
         task.resume()
     }
 
+    /// 키워드를 가지고 결과를 보여주는 함수
+    func searchKeywordList(pageNo: String = "1", keyword: String, completion: @escaping (Result<AttractionResponse, Error>) -> Void) {
+        var components = URLComponents(string: "\(Constants.base_URL)/searchKeyword1")
+        
+        // 쿼리 아이템 설정
+        components?.queryItems = [
+            URLQueryItem(name: "serviceKey", value: Constants.api_key),
+            URLQueryItem(name: "numOfRows", value: "10"),
+            URLQueryItem(name: "pageNo", value: pageNo),
+            URLQueryItem(name: "MobileOS", value: "iOS"),
+            URLQueryItem(name: "MobileApp", value: "AppTest"),
+            URLQueryItem(name: "_type", value: "json"),
+            URLQueryItem(name: "listYN", value: "Y"),
+            URLQueryItem(name: "arrange", value: "Q"),
+            URLQueryItem(name: "keyword", value: keyword) // 검색 키워드
+        ]
+        
+        // 퍼센트 인코딩 후 "+"를 "%2B"로 대체
+        if let encodedQuery = components?.percentEncodedQuery?.replacingOccurrences(of: "%25", with: "%") {
+            components?.percentEncodedQuery = encodedQuery
+        }
+        
+        // URL 생성
+        guard let url = components?.url else { return }
+        
+        let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
+            guard let data = data, error == nil else {
+                print("Network error: \(String(describing: error))")
+                return completion(.failure(error!))
+            }
+            
+            do {
+                let results = try JSONDecoder().decode(AttractionResponse.self, from: data)
+                completion(.success(results))
+            } catch {
+                print("Decoding error: \(error)")
+                completion(.failure(error))
+            }
+        }
+        task.resume()
+    }
     
     
 }
