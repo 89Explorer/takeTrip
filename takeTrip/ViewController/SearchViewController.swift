@@ -11,6 +11,9 @@ class SearchViewController: UIViewController {
     
     // MARK: - Variables
     var spotResults: [AttractionItem] = []
+    var spotResultsByContentTypeId: [String: [AttractionItem]] = [:]   // contentTypeId별로 데이터 저장
+    var showAllItems: Set<String> = []  // 더 보기를 누른 contentTypeId를 저장
+    
     
     // MARK: - UI Components
     /// 검색어를 입력할 서치바 생성
@@ -29,6 +32,7 @@ class SearchViewController: UIViewController {
         tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
         tableView.isHidden = true  // 초기에는 테이블뷰를 숨깁니다.
+        tableView.allowsSelection = true
         return tableView
     }()
     
@@ -43,7 +47,7 @@ class SearchViewController: UIViewController {
         configureNavigationItem()
         configureTableView()
         configureSearchBarTextField()
-        keyBoardDown()
+        //keyBoardDown()
         
     }
     
@@ -62,7 +66,7 @@ class SearchViewController: UIViewController {
             // 결과를 보여주는 테이블 레이아웃 설정 (서치바 바로 아래)
             spotResultsTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             spotResultsTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            spotResultsTableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 10),
+            spotResultsTableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             spotResultsTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
             
         ])
@@ -114,21 +118,102 @@ class SearchViewController: UIViewController {
     }
     
     /// 검색어를 갖고 외부API를 통해 데이터를 불러오는 함수
-    func searchForKeyword(with keyword: String) {
-        NetworkManager.shared.searchKeywordList(keyword: keyword) { [weak self] results in
+//        func searchForKeyword(with keyword: String) {
+//            NetworkManager.shared.searchKeywordList(keyword: keyword) { [weak self] results in
+//                switch results {
+//                case .success(let items):
+//                    let searchList = items.response.body.items.item
+//    
+//                    DispatchQueue.main.async {
+//                        // 검색 결과가 있으면 테이블 뷰를 표시하고 없으면 숨깁니다.
+//                        self?.spotResults = searchList
+//                        self?.spotResultsTableView.isHidden = searchList.isEmpty
+//                        self?.spotResultsTableView.reloadData()
+//    
+//                    }
+//    
+//                case .failure(let error):
+//                    print(error.localizedDescription)
+//                }
+//            }
+//        }
+//    
+    func searchForKeyword(with keyword: String, page: Int, completion: @escaping (Int) -> Void) {
+        NetworkManager.shared.searchKeywordList(pageNo: String(page) ,keyword: keyword) { [weak self] results in
             switch results {
             case .success(let items):
                 let searchList = items.response.body.items.item
-                self?.spotResults = searchList
+                let totalCount = items.response.body.totalCount
+                self?.categorizeByContentTypeId(searchList)
+                completion(totalCount)
                 
                 DispatchQueue.main.async {
                     // 검색 결과가 있으면 테이블 뷰를 표시하고 없으면 숨깁니다.
                     self?.spotResultsTableView.isHidden = searchList.isEmpty
                     self?.spotResultsTableView.reloadData()
+                    
                 }
                 
             case .failure(let error):
                 print(error.localizedDescription)
+            }
+        }
+    }
+    
+    func fetchForKeyword(with keyword: String) {
+        searchForKeyword(with: keyword, page: 1) { [weak self] totalCount in
+            guard let self = self else { return }
+            
+            // 전체 페이지 수 계산
+            let itemsPersPage = 10
+            let totalPages = (totalCount / itemsPersPage) + (totalCount % itemsPersPage > 0 ? 1 : 0)
+            
+            var allContentTypesSatisfied = true
+            // 각 contentTypId별 최소 5개 확보
+            for contentTypeId in self.spotResultsByContentTypeId.keys {
+                if (self.spotResultsByContentTypeId[contentTypeId]?.count ?? 0) < 5 {
+                    allContentTypesSatisfied = false
+                    self.ensureMinimumItems(for: contentTypeId, keyword: keyword, currentPage: 1, totalPages: totalPages)
+                }
+            }
+            
+            // 모든 contentTypeId가 조건을 충족한 경우만 reloadData 호출
+            if allContentTypesSatisfied {
+                DispatchQueue.main.async {
+                    self.spotResultsTableView.isHidden = self.spotResultsByContentTypeId.isEmpty
+                    self.spotResultsTableView.reloadData()
+                }
+            }
+        }
+    }
+    
+    /// AttractionItem 배열인 items를 contentTypeId별로 그룹화, spotResultsByContentTypeId에 저장하는 메서드
+    func categorizeByContentTypeId(_ items: [AttractionItem]) {
+        //spotResultsByContentTypeId.removeAll()
+        for item in items {
+            let contenttypeid = item.contenttypeid
+            // default: [] 구문을 사용하면, contentTypeId 키가 spotResults 딕셔너리에 없을 경우 빈 배열 []이 자동으로 초기화
+            //
+            spotResultsByContentTypeId[contenttypeid, default: []].append(item)
+        }
+    }
+    
+    
+    func ensureMinimumItems(for contentTypeId: String, keyword: String, currentPage: Int, totalPages: Int) {
+        
+        // 현재 확보된 데이터 수 확인
+        let itemCount = spotResultsByContentTypeId[contentTypeId]?.count ?? 0
+        
+        
+        // 최소 5개 확보되지 않았고, 다음 페이지가 없는 경우 추가 설정
+        if itemCount < 5, currentPage < totalPages {
+            let nextPage = currentPage + 1
+            searchForKeyword(with: keyword, page: nextPage) { [weak self] _ in
+                self?.ensureMinimumItems(for: contentTypeId, keyword: keyword, currentPage: nextPage, totalPages: totalPages)
+            }
+        } else {
+            DispatchQueue.main.async {
+                self.spotResultsTableView.reloadData()
             }
         }
     }
@@ -157,7 +242,7 @@ extension SearchViewController: UISearchBarDelegate, UITextFieldDelegate {
             return
         }
         
-        self.searchForKeyword(with: query)
+        self.fetchForKeyword(with: query)
         searchBar.resignFirstResponder()
     }
     
@@ -166,7 +251,7 @@ extension SearchViewController: UISearchBarDelegate, UITextFieldDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         // 검색어가 비어있으면 테이블 뷰를 숨김
         if searchText.isEmpty {
-            spotResults = []
+            spotResultsByContentTypeId.removeAll()
             spotResultsTableView.isHidden = true
             spotResultsTableView.reloadData()
         }
@@ -177,14 +262,117 @@ extension SearchViewController: UISearchBarDelegate, UITextFieldDelegate {
 
 
 // MARK: - UITableViewDelegate, UITableViewDataSource
+//extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
+//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        return spotResults.count
+//    }
+//    
+//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+//        
+//        cell.textLabel?.text = spotResults[indexPath.row].title
+//        return cell
+//    }
+//    
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        print("called")
+//        let selectedItem = spotResults[indexPath.item]
+//        print("selectedItem: \(selectedItem)")
+//    }
+//}
+
+
+
 extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return spotResultsByContentTypeId.keys.count
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return spotResults.count
+        let keys = Array(spotResultsByContentTypeId.keys)
+        
+        // section의 범위 확인
+        guard section < keys.count else {
+            return 0
+        }
+        
+        let contentTypeId = keys[section]
+        let items = spotResultsByContentTypeId[contentTypeId] ?? []
+        
+        // showAllItems에 따라 표시할 아이템 수 결정
+        return showAllItems.contains(contentTypeId) ? items.count : min(items.count, 5)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = spotResults[indexPath.row].title
+        
+        // indexPath.section의 범위 확인
+        let keys = Array(spotResultsByContentTypeId.keys)
+        guard indexPath.section < keys.count else {
+            cell.textLabel?.text = "" // 기본 텍스트 설정
+            return cell
+        }
+        
+        let contentTypeId = keys[indexPath.section]
+        let items = spotResultsByContentTypeId[contentTypeId] ?? []
+        
+        // indexPath.row의 범위 확인
+        if indexPath.row < items.count {
+            cell.textLabel?.text = items[indexPath.row].title
+        } else {
+            cell.textLabel?.text = "" // 기본 텍스트 설정
+        }
+        
         return cell
+        
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        let contentTypeId = Array(spotResultsByContentTypeId.keys)[section]
+        
+        switch contentTypeId {
+        case "12":
+            return "관광지"
+        case "14":
+            return "문화시설"
+        case "15":
+            return "축제/공연/행사"
+        case "25":
+            return "여행코스"
+        case "28":
+            return "레포츠"
+        case "32":
+            return "숙박"
+        case "38":
+            return "쇼핑"
+        case "39":
+            return "음식점"
+        default:
+            return "기타"
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("Row selected at section \(indexPath.section), row \(indexPath.row)")
+        
+        let keys = Array(spotResultsByContentTypeId.keys)
+        guard indexPath.section < keys.count else {
+            print("Invalid section index")
+            return
+        }
+        
+        let contentTypeId = keys[indexPath.section]
+        
+        if let items = spotResultsByContentTypeId[contentTypeId], indexPath.row < items.count {
+            let selectedItem = items[indexPath.row]
+            print("Selected title: \(selectedItem.title ?? "실패")")
+            print("selected image: \(selectedItem.firstimage ?? "fill.jpg")")
+        } else {
+            print("Invalid row index")
+        }
     }
 }
+
+
+

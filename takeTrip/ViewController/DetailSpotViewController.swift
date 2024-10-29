@@ -203,7 +203,7 @@ class DetailSpotViewController: UIViewController {
                     spotOverView = self?.detailSpotView.spotOverview
                 }
                 
-                let modifiedOperateTime = self?.removeHTMLTags(from: spotOperateTime!)
+                let modifiedOperateTime = self?.removeHTMLTags(from: spotOperateTime ?? "-")
                 
                 DispatchQueue.main.async {
                     self?.detailSpotView.configureSpotInfo(spotAddress: spotAddress, spotPhone: spotPhoneNumber, spotWebsite: spotHomePage, spotOperateTime: modifiedOperateTime)
