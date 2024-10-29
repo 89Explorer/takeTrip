@@ -577,8 +577,9 @@ class DetailSpotView: UIView {
     
     /// 디테일 화면에 필요한 내용을 입력하는 함수
     func getDetail(with selectedItem: AttractionItem) {
-        let spotName = selectedItem.title
-        let spotCategory = selectedItem.cat3
+        guard let spotName = selectedItem.title,
+              let spotCategory = selectedItem.cat3,
+              let address = selectedItem.addr1 else { return }
         
         if let categoryEnum = ThirdCategory(rawValue: spotCategory) {
             self.spotCategory.text = categoryEnum.displayName
@@ -587,7 +588,7 @@ class DetailSpotView: UIView {
         }
     
         self.spotTitle.text = spotName
-        self.spotAddress = selectedItem.addr1
+        self.spotAddress = address
         self.spotHomePage = selectedItem.homepage ?? "-"
     }
     

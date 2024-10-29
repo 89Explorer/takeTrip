@@ -38,14 +38,14 @@ struct Items: Codable {
 }
 
 // MARK: - AttractionItem
-struct AttractionItem: Codable {
-    let addr1: String
-    let addr2: String?
+struct AttractionItem: Codable{
+    let addr1: String?
+    let addr2: String
     let areacode: String
     let booktour: String?
     let cat1: String
     let cat2: String
-    let cat3: String
+    let cat3: String?
     let contentid: String
     let contenttypeid: String
     let createdtime: String
