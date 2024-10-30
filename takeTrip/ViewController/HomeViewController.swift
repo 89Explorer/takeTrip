@@ -40,10 +40,6 @@ class HomeViewController: UIViewController {
         
         // 화면을 아래로 스크롤하면 네비게이션바 부분이 숨겨지고, 반대로 하면 나타나는 기능
         // self.navigationController?.hidesBarsOnSwipe = false
-        
-        NetworkManager.shared.searchKeywordList(keyword: "경기") { _ in
-            
-        }
     }
     
     // MARK: - Function

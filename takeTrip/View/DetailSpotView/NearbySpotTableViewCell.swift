@@ -51,14 +51,14 @@ class NearbySpotTableViewCell: UITableViewCell {
         return label
     }()
     
-    let nearbySpotCategory: UILabel = {
-        let label = UILabel()
+    let nearbySpotCategory: PaddedLabel = {
+        let label = PaddedLabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .regular)
 
         label.text = "박물관"
         label.backgroundColor = .secondarySystemBackground
-        label.layer.cornerRadius = 2
+        label.layer.cornerRadius = 5
         label.clipsToBounds = true
         label.textColor = .label
         label.textAlignment = .left
@@ -116,13 +116,13 @@ class NearbySpotTableViewCell: UITableViewCell {
         return label
     }()
     
-    let nearbySpotDistance: UILabel = {
-        let label = UILabel()
+    let nearbySpotDistance: PaddedLabel = {
+        let label = PaddedLabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.text = "223m"
         label.backgroundColor = .secondarySystemBackground
-        label.layer.cornerRadius = 2
+        label.layer.cornerRadius = 5
         label.clipsToBounds = true
         label.textColor = .label
         label.textAlignment = .left

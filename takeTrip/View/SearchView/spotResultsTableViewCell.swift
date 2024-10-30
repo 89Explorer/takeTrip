@@ -64,10 +64,12 @@ class spotResultsTableViewCell: UITableViewCell {
         return label
     }()
     
-    let categoryLabel: UILabel = {
-        let label = UILabel()
+    let categoryLabel: PaddedLabel = {
+        let label = PaddedLabel()
         label.text = "문화시설"
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.layer.cornerRadius = 5
+        label.clipsToBounds = true
         label.textColor = .white
         label.backgroundColor = .systemGray
         return label
@@ -131,8 +133,7 @@ class spotResultsTableViewCell: UITableViewCell {
     func configureSearchData(with item: AttractionItem) {
         guard let imagePath = item.firstimage,
               let title = item.title,
-              let address = item.addr1,
-              let category = item.cat3
+              let address = item.addr1
         else { return }
         
         let securePosterURL = imagePath.replacingOccurrences(of: "http://", with: "https://")
@@ -147,7 +148,12 @@ class spotResultsTableViewCell: UITableViewCell {
         
         titleLabel.text = title
         addressLabel.text = modifiedAddress
-        categoryLabel.text = category
+        
+        self.fetchCategory(with: item) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.categoryLabel.text = result
+            }
+        }
     }
     
     /// 띄어쓰기로 문자열 구분
@@ -155,5 +161,39 @@ class spotResultsTableViewCell: UITableViewCell {
         let components = fullAddress.split(separator: " ")  // 띄어쓰기 기준으로 문자열 분리
         let prefix = components.prefix(wordCount)          // 원하는 단어 개수만큼 가져옴
         return prefix.joined(separator: " ")               // 다시 띄어쓰기로 합침
+    }
+    
+    
+    func fetchCategory(with item: AttractionItem, completion: @escaping (String) -> Void) {
+        guard let cat1 = item.cat1,
+              let cat2 = item.cat2,
+              let cat3 = item.cat3,
+              let contenttypeid = item.contenttypeid else { return }
+        
+        NetworkManager.shared.fetchCategoryCode(contentTypeId: contenttypeid, cat1: cat1, cat2: cat2, cat3: cat3) { results in
+            switch results {
+            case .success(let category):
+                let name = category.response.body.items.item[0].name ?? "기타"
+                completion(name)
+            case .failure(let error):
+                completion(error.localizedDescription)
+            }
+        }
+    }
+}
+
+
+class PaddedLabel: UILabel {
+    var textInsets = UIEdgeInsets(top: 4, left: 8, bottom: 4, right: 8) // 원하는 패딩
+
+    override func drawText(in rect: CGRect) {
+        super.drawText(in: rect.inset(by: textInsets))
+    }
+    
+    override var intrinsicContentSize: CGSize {
+        let originalSize = super.intrinsicContentSize
+        let width = originalSize.width + textInsets.left + textInsets.right
+        let height = originalSize.height + textInsets.top + textInsets.bottom
+        return CGSize(width: width, height: height)
     }
 }

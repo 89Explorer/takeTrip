@@ -301,4 +301,47 @@ class NetworkManager {
     }
     
     
+    func fetchCategoryCode(contentTypeId: String, cat1: String, cat2: String, cat3: String, pageNo: String = "1", completion: @escaping (Result<AttractionResponse, Error>) -> Void) {
+        var components = URLComponents(string: "\(Constants.base_URL)/categoryCode1")
+        
+        // 쿼리 아이템 설정
+        components?.queryItems = [
+            URLQueryItem(name: "serviceKey", value: Constants.api_key),
+            URLQueryItem(name: "numOfRows", value: "10"),
+            URLQueryItem(name: "pageNo", value: pageNo),
+            URLQueryItem(name: "MobileOS", value: "ETC"),
+            URLQueryItem(name: "MobileApp", value: "AppTest"),
+            URLQueryItem(name: "contentTypeId", value: contentTypeId),
+            URLQueryItem(name: "cat1", value: cat1),
+            URLQueryItem(name: "cat2", value: cat2),
+            URLQueryItem(name: "cat3", value: cat3),
+            URLQueryItem(name: "_type", value: "json")
+        ]
+        
+        // 퍼센트 인코딩 후 "+"를 "%2B"로 대체
+        if let encodedQuery = components?.percentEncodedQuery?.replacingOccurrences(of: "%25", with: "%") {
+            components?.percentEncodedQuery = encodedQuery
+        }
+        
+        // URL 생성
+        guard let url = components?.url else { return }
+        
+        let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
+            guard let data = data, error == nil else {
+                print("Network error: \(String(describing: error))")
+                return completion(.failure(error!))
+            }
+            
+            do {
+                let results = try JSONDecoder().decode(AttractionResponse.self, from: data)
+                completion(.success(results))
+            } catch {
+                print("Decoding error: \(error)")
+                completion(.failure(error))
+            }
+        }
+        task.resume()
+    }
+
+    
 }

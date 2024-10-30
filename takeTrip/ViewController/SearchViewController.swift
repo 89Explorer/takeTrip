@@ -119,111 +119,7 @@ class SearchViewController: UIViewController {
         }
     }
     
-    /// 검색어를 갖고 외부API를 통해 데이터를 불러오는 함수
-//        func searchForKeyword(with keyword: String) {
-//            NetworkManager.shared.searchKeywordList(keyword: keyword) { [weak self] results in
-//                switch results {
-//                case .success(let items):
-//                    let searchList = items.response.body.items.item
-//    
-//                    DispatchQueue.main.async {
-//                        // 검색 결과가 있으면 테이블 뷰를 표시하고 없으면 숨깁니다.
-//                        self?.spotResults = searchList
-//                        self?.spotResultsTableView.isHidden = searchList.isEmpty
-//                        self?.spotResultsTableView.reloadData()
-//    
-//                    }
-//    
-//                case .failure(let error):
-//                    print(error.localizedDescription)
-//                }
-//            }
-//        }
-//    
-//    func searchForKeyword(with keyword: String, page: Int, completion: @escaping (Int) -> Void) {
-//        NetworkManager.shared.searchKeywordList(pageNo: String(page) ,keyword: keyword) { [weak self] results in
-//            switch results {
-//            case .success(let items):
-//                let searchList = items.response.body.items.item
-//                let totalCount = items.response.body.totalCount
-//                self?.categorizeByContentTypeId(searchList)
-//                completion(totalCount)
-//                
-//                DispatchQueue.main.async {
-//                    // 검색 결과가 있으면 테이블 뷰를 표시하고 없으면 숨깁니다.
-//                    self?.spotResultsTableView.isHidden = searchList.isEmpty
-//                    self?.spotResultsTableView.reloadData()
-//                    
-//                }
-//                
-//            case .failure(let error):
-//                print(error.localizedDescription)
-//            }
-//        }
-//    }
-//    
-//    func fetchForKeyword(with keyword: String) {
-//        searchForKeyword(with: keyword, page: 1) { [weak self] totalCount in
-//            guard let self = self else { return }
-//            
-//            // 전체 페이지 수 계산
-//            let itemsPersPage = 10
-//            let totalPages = (totalCount / itemsPersPage) + (totalCount % itemsPersPage > 0 ? 1 : 0)
-//            
-//            var allContentTypesSatisfied = true
-//            // 각 contentTypId별 최소 5개 확보
-//            for contentTypeId in self.spotResultsByContentTypeId.keys {
-//                if (self.spotResultsByContentTypeId[contentTypeId]?.count ?? 0) < 3 {
-//                    allContentTypesSatisfied = false
-//                    self.ensureMinimumItems(for: contentTypeId, keyword: keyword, currentPage: 1, totalPages: totalPages)
-//                }
-//            }
-//            
-//            // 모든 contentTypeId가 조건을 충족한 경우만 reloadData 호출
-//            if allContentTypesSatisfied {
-//                DispatchQueue.main.async {
-//                    self.spotResultsTableView.isHidden = self.spotResultsByContentTypeId.isEmpty
-//                    self.spotResultsTableView.reloadData()
-//                }
-//            }
-//        }
-//    }
-//        
-//    func categorizeByContentTypeId(_ items: [AttractionItem]) {
-//        // 중복 확인을 위한 Set 생성
-//        var uniqueItemsSet = Set<String>() // Set에 고유 식별자로 사용할 id를 저장
-//        
-//        for item in items {
-//            let contentTypeId = item.contenttypeid
-//            
-//            // 중복 검사: Set에 id가 없는 경우 추가
-//            if uniqueItemsSet.insert(item.contentid).inserted {
-//                // 중복이 아니므로 딕셔너리에 추가
-//                spotResultsByContentTypeId[contentTypeId, default: []].append(item)
-//            }
-//        }
-//    }
-//
-//    
-//    
-//    func ensureMinimumItems(for contentTypeId: String, keyword: String, currentPage: Int, totalPages: Int) {
-//        // 현재 확보된 데이터 수 확인
-//        let itemCount = spotResultsByContentTypeId[contentTypeId]?.count ?? 0
-//        
-//        
-//        // 최소 5개 확보되지 않았고, 다음 페이지가 없는 경우 추가 설정
-//        if itemCount < 3, currentPage < totalPages {
-//            let nextPage = currentPage + 1
-//            searchForKeyword(with: keyword, page: nextPage) { [weak self] _ in
-//                self?.ensureMinimumItems(for: contentTypeId, keyword: keyword, currentPage: nextPage, totalPages: totalPages)
-//            }
-//        } else {
-//            DispatchQueue.main.async {
-//                //self.spotResultsTableView.reloadData()
-//            }
-//        }
-//    }
-    
+    /// 네트워크 요청을 통해 키워드 검색 결과를 가져오는 함수
     func searchForKeyword(with keyword: String, page: Int, completion: @escaping (Int) -> Void) {
         NetworkManager.shared.searchKeywordList(pageNo: String(page), keyword: keyword) { [weak self] results in
             switch results {
@@ -233,17 +129,13 @@ class SearchViewController: UIViewController {
                 self?.filterAndCategorizeByContentTypeId(searchList)  // 중복 필터링 및 카테고리화
                 completion(totalCount)
                 
-                DispatchQueue.main.async {
-                    self?.spotResultsTableView.isHidden = searchList.isEmpty
-                    self?.spotResultsTableView.reloadData()
-                }
-                
             case .failure(let error):
                 print(error.localizedDescription)
             }
         }
     }
 
+    /// 검색 결과가 최소 3개 확보될 때까지 페이지를 순차적으로 가져오는 함수
     func fetchForKeyword(with keyword: String) {
         // 검색 시작 시 중복 확인 Set을 초기화
         uniqueContentIds.removeAll()
@@ -276,8 +168,8 @@ class SearchViewController: UIViewController {
     /// 기존 데이터와 중복된 contentId를 제외하고 `spotResultsByContentTypeId`에 추가
     func filterAndCategorizeByContentTypeId(_ items: [AttractionItem]) {
         for item in items {
-            let contentId = item.contentid
-            let contentTypeId = item.contenttypeid
+            let contentId = item.contentid!
+            let contentTypeId = item.contenttypeid!
             
             // 중복 검사: Set에 contentId가 없는 경우에만 추가
             if uniqueContentIds.insert(contentId).inserted {
@@ -287,6 +179,7 @@ class SearchViewController: UIViewController {
         }
     }
 
+    /// 각 contentTypeId에 대해 최소 3개의 항목이 확보될 때까지 다음 페이지 데이터를 요청하는 함수
     func ensureMinimumItems(for contentTypeId: String, keyword: String, currentPage: Int, totalPages: Int) {
         let itemCount = spotResultsByContentTypeId[contentTypeId]?.count ?? 0
 
@@ -294,10 +187,6 @@ class SearchViewController: UIViewController {
             let nextPage = currentPage + 1
             searchForKeyword(with: keyword, page: nextPage) { [weak self] _ in
                 self?.ensureMinimumItems(for: contentTypeId, keyword: keyword, currentPage: nextPage, totalPages: totalPages)
-            }
-        } else {
-            DispatchQueue.main.async {
-                self.spotResultsTableView.reloadData()
             }
         }
     }
@@ -346,26 +235,6 @@ extension SearchViewController: UISearchBarDelegate, UITextFieldDelegate {
 
 
 // MARK: - UITableViewDelegate, UITableViewDataSource
-//extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
-//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return spotResults.count
-//    }
-//    
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-//        
-//        cell.textLabel?.text = spotResults[indexPath.row].title
-//        return cell
-//    }
-//    
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        print("called")
-//        let selectedItem = spotResults[indexPath.item]
-//        print("selectedItem: \(selectedItem)")
-//    }
-//}
-
-
 
 extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     
@@ -463,8 +332,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 140
     }
-    
-    
+
 }
 
 

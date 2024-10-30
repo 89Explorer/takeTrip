@@ -40,23 +40,23 @@ struct Items: Codable {
 // MARK: - AttractionItem
 struct AttractionItem: Codable{
     let addr1: String?
-    let addr2: String
-    let areacode: String
+    let addr2: String?
+    let areacode: String?
     let booktour: String?
-    let cat1: String
-    let cat2: String
+    let cat1: String?
+    let cat2: String?
     let cat3: String?
-    let contentid: String
-    let contenttypeid: String
-    let createdtime: String
+    let contentid: String?
+    let contenttypeid: String?
+    let createdtime: String?
     let firstimage: String?
     let firstimage2: String?
     let cpyrhtDivCd: String?
-    let mapx: String
-    let mapy: String
-    let mlevel: String
-    let modifiedtime: String
-    let sigungucode: String
+    let mapx: String?
+    let mapy: String?
+    let mlevel: String?
+    let modifiedtime: String?
+    let sigungucode: String?
     let tel: String?
     let telname: String?
     let homepage: String?
@@ -65,6 +65,11 @@ struct AttractionItem: Codable{
     let overview: String?
     
     let dist: String?
+    
+    // category
+    let code: String?
+    let name: String?
+    let rnum: Int?
 }
 
 
