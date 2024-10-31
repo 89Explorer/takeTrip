@@ -128,6 +128,9 @@ class SearchViewController: UIViewController {
                 let totalCount = items.response.body.totalCount
                 self?.filterAndCategorizeByContentTypeId(searchList)  // 중복 필터링 및 카테고리화
                 completion(totalCount)
+                DispatchQueue.main.async {
+                    self?.spotResultsTableView.reloadData()
+                }
                 
             case .failure(let error):
                 print(error.localizedDescription)
@@ -166,17 +169,35 @@ class SearchViewController: UIViewController {
     }
 
     /// 기존 데이터와 중복된 contentId를 제외하고 `spotResultsByContentTypeId`에 추가
+//    func filterAndCategorizeByContentTypeId(_ items: [AttractionItem]) {
+//        
+//        for item in items {
+//            let contentId = item.contentid!
+//            let contentTypeId = item.contenttypeid!
+//            
+//            // 중복 검사: Set에 contentId가 없는 경우에만 추가
+//            if uniqueContentIds.insert(contentId).inserted {
+//                // 중복이 없으므로 딕셔너리에 추가
+//                spotResultsByContentTypeId[contentTypeId, default: []].append(item)
+//            }
+//        }
+//    }
+    
     func filterAndCategorizeByContentTypeId(_ items: [AttractionItem]) {
+        // print("Original items count: \(items.count)")
+        
+        var uniqueContentIds = Set<String>()
         for item in items {
-            let contentId = item.contentid!
-            let contentTypeId = item.contenttypeid!
-            
-            // 중복 검사: Set에 contentId가 없는 경우에만 추가
-            if uniqueContentIds.insert(contentId).inserted {
-                // 중복이 없으므로 딕셔너리에 추가
+            // print("Processing item with contentTypeId: \(item.contenttypeid ?? "nil")")
+            if let contentTypeId = item.contenttypeid, uniqueContentIds.insert(item.contentid!).inserted {
                 spotResultsByContentTypeId[contentTypeId, default: []].append(item)
             }
         }
+        DispatchQueue.main.async {
+            self.spotResultsTableView.reloadData()
+        }
+        
+        // print("Filtered items by contentTypeId:", spotResultsByContentTypeId)
     }
 
     /// 각 contentTypeId에 대해 최소 3개의 항목이 확보될 때까지 다음 페이지 데이터를 요청하는 함수
@@ -201,6 +222,24 @@ class SearchViewController: UIViewController {
     /// 빈 화면을 터치할 때 호출되는 메서드
     @objc func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    @objc func didTapShowMoreButton( _ sender: UIButton) {
+        let section = sender.tag
+        let keys = Array(spotResultsByContentTypeId.keys)
+        
+        guard section < keys.count else { return }
+        let contentTypeId = keys[section]
+        
+        // showAllItems에 포함되어 있으면 제거하고, 없으면 추가
+        if showAllItems.contains(contentTypeId) {
+            showAllItems.remove(contentTypeId)
+        } else {
+            showAllItems.insert(contentTypeId)
+        }
+        
+        spotResultsTableView.reloadData()
+        //spotResultsTableView.reloadSections(IndexSet(integer: section), with: .automatic)
     }
     
 }
@@ -235,7 +274,6 @@ extension SearchViewController: UISearchBarDelegate, UITextFieldDelegate {
 
 
 // MARK: - UITableViewDelegate, UITableViewDataSource
-
 extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -260,7 +298,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         guard let cell = tableView.dequeueReusableCell(withIdentifier: spotResultsTableViewCell.identifier, for: indexPath) as? spotResultsTableViewCell else { return UITableViewCell() }
-        
+                
         // indexPath.section의 범위 확인
         let keys = Array(spotResultsByContentTypeId.keys)
         guard indexPath.section < keys.count else {
@@ -279,6 +317,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         } else {
             cell.textLabel?.text = "" // 기본 텍스트 설정
         }
+        cell.selectionStyle = .none
         
         return cell
         
@@ -322,8 +361,15 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         
         if let items = spotResultsByContentTypeId[contentTypeId], indexPath.row < items.count {
             let selectedItem = items[indexPath.row]
-            print("Selected title: \(selectedItem.title ?? "실패")")
-            print("selected image: \(selectedItem.firstimage ?? "fill.jpg")")
+            
+            let detailVC = DetailSpotViewController()
+            detailVC.selectedSpotItem = selectedItem
+            detailVC.getDetailImageList(with: selectedItem)
+            detailVC.detailSpotView.getDetail(with: selectedItem)
+            detailVC.getSpotCommonInfo(with: selectedItem)
+            detailVC.getOverview(with: selectedItem)
+            detailVC.getNearbySpotList(with: selectedItem)
+            navigationController?.pushViewController(detailVC, animated: true)
         } else {
             print("Invalid row index")
         }
@@ -332,8 +378,33 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 140
     }
-
+    
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let footerView = UIView()
+        let button = UIButton(type: .system)
+        
+        // 현재 섹션의 contentTypeId를 가져오기
+        let keys = Array(spotResultsByContentTypeId.keys)
+        guard section < keys.count else { return nil }
+        let contentTypeId = keys[section]
+        
+        // showAllItems에 포함 여부에 따라 버튼 제목 설정
+        button.setTitle(showAllItems.contains(contentTypeId) ? "접기" : "더 보기", for: .normal)
+        button.addTarget(self, action: #selector(didTapShowMoreButton(_:)), for: .touchUpInside)
+        button.tag = section
+        footerView.addSubview(button)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            button.centerXAnchor.constraint(equalTo: footerView.centerXAnchor),
+            button.centerYAnchor.constraint(equalTo: footerView.centerYAnchor)
+        ])
+        
+        return footerView
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 50
+    }
 }
-
-
-
