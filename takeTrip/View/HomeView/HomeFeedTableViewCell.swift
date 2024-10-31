@@ -61,6 +61,7 @@ class HomeFeedTableViewCell: UITableViewCell {
             switch results {
             case .success(let selectedItem):
                 self.selectedSpotItem = selectedItem.response.body.items.item
+
                 DispatchQueue.main.async {
                     self.feedCollectionView.reloadData()
                 }
@@ -70,6 +71,7 @@ class HomeFeedTableViewCell: UITableViewCell {
         }
     }
     
+
     
     // MARK: - Layouts
     private func configureConstraints() {

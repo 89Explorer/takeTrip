@@ -145,13 +145,16 @@ class DetailSpotViewController: UIViewController {
         NetworkManager.shared.getSpotImage(contentId: contentId) { [weak self] results in
             switch results {
             case .success(let items):
-                guard let imageItem = items.response.body.items?.item else { return }
-                if imageItem.isEmpty {
-                    self?.setDefaultImage()
-                } else {
-                    
+                // imageItem이 비었거나, 공백 문자열인지 검사
+                if let imageItem = items.response.body.items?.item, !imageItem.isEmpty, !imageItem.allSatisfy({ $0.originimgurl.trimmingCharacters(in: .whitespaces).isEmpty }) {
                     DispatchQueue.main.async {
-                        self?.detailImages = (items.response.body.items?.item?.compactMap({ $0.originimgurl }))!
+                        self?.detailImages = imageItem.compactMap { $0.originimgurl }
+                        self?.detailSpotView.detailImageCollectionView.reloadData()
+                    }
+                } else {
+                    // imageItem이 비어있거나, 공백 문자열일 때 기본 이미지를 설정
+                    self?.setDefaultImage()
+                    DispatchQueue.main.async {
                         self?.detailSpotView.detailImageCollectionView.reloadData()
                     }
                 }
@@ -169,6 +172,37 @@ class DetailSpotViewController: UIViewController {
             }
         }
     }
+    
+    //    func getDetailImageList(with item: AttractionItem?, retryCount: Int = 3) {
+    //        guard let contentId = item?.contentid else { return }
+    //
+    //        NetworkManager.shared.getSpotImage(contentId: contentId) { [weak self] results in
+    //            switch results {
+    //            case .success(let items):
+    //                guard let imageItem = items.response.body.items?.item else { return }
+    //                if imageItem.isEmpty {
+    //                    self?.setDefaultImage()
+    //                } else {
+    //
+    //                    DispatchQueue.main.async {
+    //                        self?.detailImages = (items.response.body.items?.item?.compactMap({ $0.originimgurl }))!
+    //                        self?.detailSpotView.detailImageCollectionView.reloadData()
+    //                    }
+    //                }
+    //
+    //            case .failure(let error):
+    //                if retryCount > 0 {
+    //                    self?.getDetailImageList(with: self?.selectedSpotItem, retryCount: retryCount - 1)
+    //                } else {
+    //                    self?.setDefaultImage()
+    //                    DispatchQueue.main.async {
+    //                        self?.detailSpotView.detailImageCollectionView.reloadData()
+    //                    }
+    //                    print(error.localizedDescription)
+    //                }
+    //            }
+    //        }
+    //    }
     
     
     /// 기본 이미지 URL 또는 로컬 이미지 파일의 이름을 detailMainImage에 배열 형태로 추가
@@ -192,10 +226,10 @@ class DetailSpotViewController: UIViewController {
                 guard let infoItems = items.response.body.items?.item else { return }
                 let spotPhoneNumber = infoItems[0].phoneNumber
                 let spotOperateTime = infoItems[0].operatingTime
-                let spotAddress = self?.detailSpotView.spotAddress
-                let spotHomePage = self?.detailSpotView.spotHomePage
+                let spotAddress = self?.detailSpotView.spotAddress ?? "-"
+                let spotHomePage = self?.detailSpotView.spotHomePage ?? "-"
                 
-                var spotOverView = self?.detailSpotView.spotOverview
+                var spotOverView = self?.detailSpotView.spotOverview 
                 
                 if spotOverView?.count == 0 {
                     spotOverView = "소개글이 없어요 😀"
@@ -269,7 +303,7 @@ class DetailSpotViewController: UIViewController {
     
     // MARK: - Actions
     @objc func didTappedSharedButton(_ sender: Any) {
-
+        
         guard let contentid = selectedSpotItem?.contentid,
               let contenttypeid = selectedSpotItem?.contenttypeid,
               let title = selectedSpotItem?.title,
@@ -289,9 +323,9 @@ class DetailSpotViewController: UIViewController {
         if let imageURL = URL(string: securePosterURLString) {
             // 이미지를 비동기적으로 다운로드 후, 완료되면 activityItems에 이미지 추가
             SDWebImageDownloader.shared.downloadImage(with: imageURL) { (image, data, error, finished) in
-//                if let image = image, finished {
-//                    activityItems.append(image) // 이미지 다운로드 완료 후 추가
-//                }
+                //                if let image = image, finished {
+                //                    activityItems.append(image) // 이미지 다운로드 완료 후 추가
+                //                }
                 
                 // UIActivityViewController 생성
                 let activityViewController = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
@@ -306,7 +340,7 @@ class DetailSpotViewController: UIViewController {
             // 이미지가 없을 경우 기본 텍스트와 URL만 공유
             let activityViewController = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
             activityViewController.popoverPresentationController?.sourceView = self.view
-
+            
             // 공유 화면 표시
             self.present(activityViewController, animated: true, completion: nil)
         }
@@ -516,7 +550,7 @@ class ShareItemSource: NSObject, UIActivityItemSource {
                 }
             }
         }
-
+        
         return metadata
     }
 }

@@ -118,8 +118,8 @@ class spotResultsTableViewCell: UITableViewCell {
             // imageTitelStackView 오토레이아웃 설정
             imageTitleStaciView.leadingAnchor.constraint(equalTo: basicView.leadingAnchor, constant: 10),
             imageTitleStaciView.trailingAnchor.constraint(equalTo: basicView.trailingAnchor, constant: -10),
-            imageTitleStaciView.topAnchor.constraint(equalTo: basicView.topAnchor),
-            imageTitleStaciView.bottomAnchor.constraint(equalTo: basicView.bottomAnchor),
+            imageTitleStaciView.topAnchor.constraint(equalTo: basicView.topAnchor, constant: 5),
+            imageTitleStaciView.bottomAnchor.constraint(equalTo: basicView.bottomAnchor, constant: -5),
 //            imageTitleStaciView.widthAnchor.constraint(equalTo: basicView.widthAnchor),
             
             // searchImage의 가로, 세로 크기 설정 

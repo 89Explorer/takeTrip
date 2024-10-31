@@ -11,7 +11,7 @@ class HomeViewController: UIViewController {
     
     // MARK: - Variables
     // 각 섹션별로 타이틀 설정
-//    var categories: [String] = ["날이 쌀쌀해질 때 생각나는 온천 여행 ", "아이와 함께 가는 테마 여행", "역사와 문화가 살아 숨쉬는 박물관 여행", "걷고 쉬고 사색하는 도보 코스", "그 옛날 정을 느끼고 싶다면, 시장 여행"]
+    //    var categories: [String] = ["날이 쌀쌀해질 때 생각나는 온천 여행 ", "아이와 함께 가는 테마 여행", "역사와 문화가 살아 숨쉬는 박물관 여행", "걷고 쉬고 사색하는 도보 코스", "그 옛날 정을 느끼고 싶다면, 시장 여행"]
     var categories: [String] = ["날이 쌀쌀해질 때 생각나는 온천 여행 ", "아이와 함께 가는 테마 여행", "역사와 문화가 살아 숨쉬는 박물관 여행", "그 옛날 정을 느끼고 싶다면, 시장 여행"]
     
     // 데이터를 랜덤으로 가져오기 위해 무작위로 페이지 설정 변수
@@ -79,7 +79,64 @@ class HomeViewController: UIViewController {
     /// 테이블의 섹션에 있는 더보기를 누르면 호출되는 함수
     @objc func moreButtonTapped(_ sender: UIButton) {
         let section = sender.tag
-        print("moreButtonTapped called \(section)")
+        fetchAllPages(for: section) { [weak self] allItems in
+            DispatchQueue.main.async {
+                let collectionVC = HomeCollectionViewController()
+                collectionVC.spotResults = allItems
+                self?.navigationController?.pushViewController(collectionVC, animated: true)
+            }
+        }
+    }
+    
+    private func fetchAllPages(for section: Int, completion: @escaping ([AttractionItem]) -> Void) {
+        var allItems: [AttractionItem] = []
+        var currentPage = 1
+        let maxPages = 10
+        
+        let spotParameters: SpotPrameters
+        switch section {
+        case 0: spotParameters = .spaCollection
+        case 1: spotParameters = .themaCollection
+        case 2: spotParameters = .museumCollection
+        case 3: spotParameters = .marketCollection
+        default: return
+        }
+        
+        func fetchPage() {
+            let contentTypeId = spotParameters.contentTypeId
+            let cat1 = spotParameters.cat1
+            let cat2 = spotParameters.cat2
+            let cat3 = spotParameters.cat3
+            
+            NetworkManager.shared.getAreaBasedList(
+                pageNo: String(currentPage),
+                contentTypeId: contentTypeId,
+                cat1: cat1,
+                cat2: cat2,
+                cat3: cat3
+            ) { [weak self] result in
+                switch result {
+                case .success(let response):
+                    // items가 배열로 반환된다고 가정하고 바로 추가
+                    let items = response.response.body.items.item
+                    allItems.append(contentsOf: items)
+                    
+                    // 다음 페이지로 이동
+                    if items.count == 5 && currentPage < maxPages {
+                        currentPage += 1
+                        fetchPage()
+                    } else {
+                        completion(allItems)
+                    }
+                    
+                case .failure(let error):
+                    print("Error fetching page \(currentPage): \(error.localizedDescription)")
+                    completion(allItems)  // 오류가 발생한 경우, 누적된 데이터 반환
+                }
+            }
+        }
+        
+        fetchPage()
     }
     
     
@@ -143,20 +200,21 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource ,HomeFe
             spotParameters = .museumCollection
         case 3:
             spotParameters = .marketCollection
-//        case 3:
-//            spotParameters = .tripcourseCollection
-//        case 4:
-//            spotParameters = .marketCollection
+            
+            //        case 4:
+            //            spotParameters = .marketCollection
         default:
             spotParameters = .spaCollection
         }
         
-        let contentTypeId = spotParameters.contentTypeId
-        let cat1 = spotParameters.cat1
-        let cat2 = spotParameters.cat2
-        let cat3 = spotParameters.cat3
-        
-        cell.getDataFromAreaBasedList(pageNo: self.randomPage, contentTypeId: contentTypeId, cat1: cat1, cat2: cat2, cat3: cat3)
+        if spotParameters == spotParameters, indexPath.section != 4 {
+            let contentTypeId = spotParameters.contentTypeId
+            let cat1 = spotParameters.cat1
+            let cat2 = spotParameters.cat2
+            let cat3 = spotParameters.cat3
+            
+            cell.getDataFromAreaBasedList(pageNo: self.randomPage, contentTypeId: contentTypeId, cat1: cat1, cat2: cat2, cat3: cat3)
+        }
         
         return cell
     }
@@ -210,12 +268,13 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource ,HomeFe
 }
 
 
+
 // MARK: - Enum 관광지별 파라미터 구분
 enum SpotPrameters {
     case spaCollection
     case themaCollection
     case museumCollection
-    //case tripcourseCollection
+    case tripcourseCollection
     case marketCollection
     
     var contentTypeId: String {
@@ -226,8 +285,8 @@ enum SpotPrameters {
             return "12"
         case .museumCollection:
             return "14"
-//        case .tripcourseCollection:
-//            return "25"
+        case .tripcourseCollection:
+            return "25"
         case .marketCollection:
             return "38"
         }
@@ -241,8 +300,8 @@ enum SpotPrameters {
             return "A02"
         case .museumCollection:
             return "A02"
-//        case .tripcourseCollection:
-//            return "C01"
+        case .tripcourseCollection:
+            return "C01"
         case .marketCollection:
             return "A04"
         }
@@ -256,8 +315,8 @@ enum SpotPrameters {
             return "A0202"
         case .museumCollection:
             return "A0206"
-//        case .tripcourseCollection:
-//            return "C0115"
+        case .tripcourseCollection:
+            return "C0115"
         case .marketCollection:
             return "A0401"
         }
@@ -271,8 +330,8 @@ enum SpotPrameters {
             return "A02020600"
         case .museumCollection:
             return "A02060100"
-//        case .tripcourseCollection:
-//            return "C01150001"
+        case .tripcourseCollection:
+            return "C01150001"
         case .marketCollection:
             return "A04010200"
         }
