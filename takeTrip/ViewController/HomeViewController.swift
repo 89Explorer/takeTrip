@@ -114,7 +114,7 @@ class HomeViewController: UIViewController {
                 cat1: cat1,
                 cat2: cat2,
                 cat3: cat3
-            ) { [weak self] result in
+            ) { result in
                 switch result {
                 case .success(let response):
                     // items가 배열로 반환된다고 가정하고 바로 추가
@@ -138,8 +138,6 @@ class HomeViewController: UIViewController {
         
         fetchPage()
     }
-    
-    
     
     
     // MARK: - Layouts

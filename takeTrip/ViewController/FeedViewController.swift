@@ -6,14 +6,16 @@
 //
 
 import UIKit
+import PhotosUI
 
 class FeedViewController: UIViewController {
     
     
     // MARK: - UI Components
     let feedTableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
+        let tableView = UITableView(frame: .zero)
         tableView.separatorStyle = .none
+        tableView.backgroundColor = .clear
         tableView.isScrollEnabled = false
         return tableView
     }()
@@ -32,7 +34,7 @@ class FeedViewController: UIViewController {
     // MARK: - Initializations
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBlue
+        view.backgroundColor = .systemBackground
         
         setupNavigationBar()
         setupTableView()
@@ -52,7 +54,7 @@ class FeedViewController: UIViewController {
         NSLayoutConstraint.activate([
             feedTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             feedTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            feedTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            feedTableView.topAnchor.constraint(equalTo: view.topAnchor),
             feedTableView.bottomAnchor.constraint(equalTo: uploadButton.topAnchor, constant: -10),
             
             uploadButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -74,7 +76,10 @@ class FeedViewController: UIViewController {
         feedTableView.delegate = self
         feedTableView.dataSource = self
         feedTableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        feedTableView.register(PhotoAddCell.self, forCellReuseIdentifier: PhotoAddCell.identifier)
+        feedTableView.register(TextInputCell.self, forCellReuseIdentifier: TextInputCell.identifier)
     }
+    
 }
 
 // MARK: - UITableViewDelegate, UITableViewDataSource
@@ -100,12 +105,14 @@ extension FeedViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch (indexPath.section, indexPath.row) {
         case (0, 0):   // 사진 추가 셀
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-            cell.textLabel?.text = "사진 추가 셀"
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: PhotoAddCell.identifier, for: indexPath) as? PhotoAddCell else { return UITableViewCell() }
+            cell.delegate = self
+            cell.selectionStyle = .none
             return cell
         case (1, 0):
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-            cell.textLabel?.text = "텍스트 추가 셀 "
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: TextInputCell.identifier, for: indexPath) as? TextInputCell else { return UITableViewCell() }
+            cell.delegate = self
+            cell.selectionStyle = .none
             return cell
         case (2, 0):
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
@@ -122,5 +129,84 @@ extension FeedViewController: UITableViewDelegate, UITableViewDataSource {
         default:
             return UITableViewCell()
         }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        switch indexPath.section {
+        case 0:
+            return 220
+        case 1:
+            return 200
+        default:
+            return 50
+        }
+    }
+}
+
+extension FeedViewController: PhotoAddCellDelegate {
+    
+    func didTapAddPhotoButton(in cell: PhotoAddCell) {
+        var configuration = PHPickerConfiguration()
+        configuration.filter = .images
+        configuration.selectionLimit = 10 // 최대 선택 개수 설정
+
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        present(picker, animated: true, completion: nil)
+    }
+    
+    func photoAddCell(_ cell: PhotoAddCell, didSelectImages images: [UIImage]) {
+        // 선택된 이미지를 PhotoAddCell에 전달하여 UI 업데이트
+        print("선택된 이미지 개수: \(images.count)")
+    }
+}
+
+extension FeedViewController: PHPickerViewControllerDelegate {
+    
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true, completion: nil)
+        
+        let imageItems = results.prefix(10)
+        var selectedImages = [UIImage]()
+
+        let group = DispatchGroup()
+        
+        for item in imageItems {
+            group.enter()
+            item.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
+                if let image = object as? UIImage {
+                    selectedImages.append(image)
+                }
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            if let cell = self.feedTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? PhotoAddCell {
+                self.photoAddCell(cell, didSelectImages: selectedImages)
+            }
+        }
+    }
+}
+
+
+extension FeedViewController: TextInputCellDelegate {
+    
+    func didTapTextInputCell(in cell: TextInputCell) {
+        let textInputPopupVC = TextInputPopupViewController()
+        textInputPopupVC.modalPresentationStyle = .popover
+        textInputPopupVC.modalTransitionStyle = .crossDissolve
+        
+        // 현재 셀의 텍스트를 초기 텍스트로 설정
+        textInputPopupVC.initialText = cell.feedLabel.text
+        
+        textInputPopupVC.onApply = { [weak self] inputText in
+            // print("입력된 텍스트: \(inputText)")
+            // 입력된 텍스트를 저장하거나 처리하는 로직 추가
+            cell.feedLabel.text = inputText
+            self?.feedTableView.reloadData()
+        }
+        
+        present(textInputPopupVC, animated: true, completion: nil)
     }
 }
