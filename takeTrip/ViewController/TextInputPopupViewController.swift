@@ -81,10 +81,8 @@ class TextInputPopupViewController: UIViewController {
         textView.translatesAutoresizingMaskIntoConstraints = false
         applyButton.translatesAutoresizingMaskIntoConstraints = false
 
-        // textView의 하단 제약 조건을 나중에 수정할 수 있도록 변수에 저장
-        //let bottomConstraints = textView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100)
-        // textViewBottomConstraint = bottomConstraints
         
+        // totalStackView 하단에 제약조건을 나중에 수정하여 사용할 수 있도록 하기 위함 
         let bottomConstarints = totalStackView.bottomAnchor.constraint(equalTo: basicView.bottomAnchor, constant: -100)
         totalStackBottomConstraint = bottomConstarints
 

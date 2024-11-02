@@ -173,37 +173,6 @@ class DetailSpotViewController: UIViewController {
         }
     }
     
-    //    func getDetailImageList(with item: AttractionItem?, retryCount: Int = 3) {
-    //        guard let contentId = item?.contentid else { return }
-    //
-    //        NetworkManager.shared.getSpotImage(contentId: contentId) { [weak self] results in
-    //            switch results {
-    //            case .success(let items):
-    //                guard let imageItem = items.response.body.items?.item else { return }
-    //                if imageItem.isEmpty {
-    //                    self?.setDefaultImage()
-    //                } else {
-    //
-    //                    DispatchQueue.main.async {
-    //                        self?.detailImages = (items.response.body.items?.item?.compactMap({ $0.originimgurl }))!
-    //                        self?.detailSpotView.detailImageCollectionView.reloadData()
-    //                    }
-    //                }
-    //
-    //            case .failure(let error):
-    //                if retryCount > 0 {
-    //                    self?.getDetailImageList(with: self?.selectedSpotItem, retryCount: retryCount - 1)
-    //                } else {
-    //                    self?.setDefaultImage()
-    //                    DispatchQueue.main.async {
-    //                        self?.detailSpotView.detailImageCollectionView.reloadData()
-    //                    }
-    //                    print(error.localizedDescription)
-    //                }
-    //            }
-    //        }
-    //    }
-    
     
     /// 기본 이미지 URL 또는 로컬 이미지 파일의 이름을 detailMainImage에 배열 형태로 추가
     func setDefaultImage() {
@@ -229,7 +198,7 @@ class DetailSpotViewController: UIViewController {
                 let spotAddress = self?.detailSpotView.spotAddress ?? "-"
                 let spotHomePage = self?.detailSpotView.spotHomePage ?? "-"
                 
-                var spotOverView = self?.detailSpotView.spotOverview 
+                var spotOverView = self?.detailSpotView.spotOverview
                 
                 if spotOverView?.count == 0 {
                     spotOverView = "소개글이 없어요 😀"

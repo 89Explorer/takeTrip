@@ -15,7 +15,7 @@ class FeedViewController: UIViewController {
     let feedTableView: UITableView = {
         let tableView = UITableView(frame: .zero)
         tableView.separatorStyle = .none
-        tableView.backgroundColor = .clear
+        tableView.backgroundColor = .secondarySystemBackground
         tableView.isScrollEnabled = false
         return tableView
     }()
@@ -30,11 +30,11 @@ class FeedViewController: UIViewController {
         button.clipsToBounds = true
         return button
     }()
-
+    
     // MARK: - Initializations
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .secondarySystemBackground
         
         setupNavigationBar()
         setupTableView()
@@ -55,12 +55,12 @@ class FeedViewController: UIViewController {
             feedTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             feedTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             feedTableView.topAnchor.constraint(equalTo: view.topAnchor),
-            feedTableView.bottomAnchor.constraint(equalTo: uploadButton.topAnchor, constant: -10),
+            feedTableView.bottomAnchor.constraint(equalTo: uploadButton.topAnchor, constant: -5),
             
-            uploadButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            uploadButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            uploadButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
-            uploadButton.heightAnchor.constraint(equalToConstant: 50)
+            uploadButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            uploadButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            uploadButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            uploadButton.heightAnchor.constraint(equalToConstant: 60)
         ])
         
     }
@@ -68,7 +68,7 @@ class FeedViewController: UIViewController {
     
     // MARK: - Functions
     func setupNavigationBar() {
-        navigationItem.title = "데이로그 작성"
+        navigationItem.title = "여행로그 작성"
         navigationController?.navigationBar.tintColor = .label
     }
     
@@ -78,6 +78,7 @@ class FeedViewController: UIViewController {
         feedTableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         feedTableView.register(PhotoAddCell.self, forCellReuseIdentifier: PhotoAddCell.identifier)
         feedTableView.register(TextInputCell.self, forCellReuseIdentifier: TextInputCell.identifier)
+        feedTableView.register(SpaceAddCell.self, forCellReuseIdentifier: SpaceAddCell.identifier)
     }
     
 }
@@ -115,8 +116,9 @@ extension FeedViewController: UITableViewDelegate, UITableViewDataSource {
             cell.selectionStyle = .none
             return cell
         case (2, 0):
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-            cell.textLabel?.text = "공간 추가 셀"
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: SpaceAddCell.identifier, for: indexPath) as? SpaceAddCell else { return UITableViewCell() }
+            
+            cell.selectionStyle = .none
             return cell
         case (2, 1):
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
@@ -141,6 +143,27 @@ extension FeedViewController: UITableViewDelegate, UITableViewDataSource {
             return 50
         }
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath.section == 2 && indexPath.row == 0 {
+            let spaceSearchVC = SpaceSearchViewController()
+            spaceSearchVC.modalPresentationStyle = .pageSheet
+            
+            if let sheet = spaceSearchVC.sheetPresentationController {
+                sheet.detents = [.medium(), .large()]
+                sheet.prefersGrabberVisible = true
+            }
+            
+            // 선택했을 때의 동작
+            spaceSearchVC.onSelectspace = { [weak self] item in
+                guard let cell = tableView.cellForRow(at: indexPath) as? SpaceAddCell else { return }
+                cell.updateSelectedSpace(with: item)
+            }
+            
+            present(spaceSearchVC, animated: true)
+        }
+        
+    }
 }
 
 extension FeedViewController: PhotoAddCellDelegate {
@@ -149,7 +172,7 @@ extension FeedViewController: PhotoAddCellDelegate {
         var configuration = PHPickerConfiguration()
         configuration.filter = .images
         configuration.selectionLimit = 10 // 최대 선택 개수 설정
-
+        
         let picker = PHPickerViewController(configuration: configuration)
         picker.delegate = self
         present(picker, animated: true, completion: nil)
@@ -168,7 +191,7 @@ extension FeedViewController: PHPickerViewControllerDelegate {
         
         let imageItems = results.prefix(10)
         var selectedImages = [UIImage]()
-
+        
         let group = DispatchGroup()
         
         for item in imageItems {

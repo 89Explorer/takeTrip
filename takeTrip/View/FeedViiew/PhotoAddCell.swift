@@ -16,7 +16,7 @@ class PhotoAddCell: UITableViewCell {
     // MARK: - UI Components
     let basicView: UIView = {
         let view = UIView()
-        view.backgroundColor = .secondarySystemBackground
+        view.backgroundColor = .systemBackground
         view.layer.cornerRadius = 10
         view.clipsToBounds = true
         return view
@@ -55,7 +55,8 @@ class PhotoAddCell: UITableViewCell {
     // MARK: - Initializations
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        backgroundColor = .systemBackground
+        //backgroundColor = .systemBackground
+        contentView.backgroundColor = .secondarySystemBackground
 
         configureContraints()
         imageSelectedButtonTapped()
@@ -76,7 +77,7 @@ class PhotoAddCell: UITableViewCell {
         NSLayoutConstraint.activate([
             basicView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             basicView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            basicView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            basicView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
             basicView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
             
             imageSelectedButton.leadingAnchor.constraint(equalTo: basicView.leadingAnchor, constant: 10),
