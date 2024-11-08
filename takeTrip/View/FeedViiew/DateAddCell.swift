@@ -1,17 +1,16 @@
 //
-//  SpaceAddCell.swift
+//  DateAddCell.swift
 //  takeTrip
 //
-//  Created by 권정근 on 11/1/24.
+//  Created by 권정근 on 11/3/24.
 //
 
 import UIKit
 
-class SpaceAddCell: UITableViewCell {
+class DateAddCell: UITableViewCell {
     
     // MARK: - Variables
-    static let identifier = "SpaceAddCell"
-    
+    static let idenifier: String = "DateAddCell"
     
     // MARK: - UI Components
     let basicView: UIView = {
@@ -24,15 +23,15 @@ class SpaceAddCell: UITableViewCell {
     
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "방문 장소"
+        label.text = "방문 날짜"
         label.font = .systemFont(ofSize: 16, weight: .bold)
         label.textColor = .label
         return label
     }()
     
-    let selectedSpaceLabel: UILabel = {
+    let selectedDateLabel: UILabel = {
         let label = UILabel()
-        label.text = "방문하신 장소를 선택해주세요"
+        label.text = "방문하신 날짜를 선택해주세요"
         label.textColor = .label
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.textAlignment = .right
@@ -52,10 +51,8 @@ class SpaceAddCell: UITableViewCell {
     // MARK: - Initializations
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.backgroundColor = .secondarySystemBackground
         
         configureConstraints()
-
     }
     
     required init?(coder: NSCoder) {
@@ -66,18 +63,18 @@ class SpaceAddCell: UITableViewCell {
     private func configureConstraints() {
         contentView.addSubview(basicView)
         basicView.addSubview(titleLabel)
-        basicView.addSubview(selectedSpaceLabel)
+        basicView.addSubview(selectedDateLabel)
         basicView.addSubview(rightImageView)
         
         basicView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        selectedSpaceLabel.translatesAutoresizingMaskIntoConstraints = false
+        selectedDateLabel.translatesAutoresizingMaskIntoConstraints = false
         rightImageView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             basicView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             basicView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            basicView.topAnchor.constraint(equalTo: contentView.topAnchor,constant: 5),
+            basicView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
             basicView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
             
             titleLabel.leadingAnchor.constraint(equalTo: basicView.leadingAnchor, constant: 10),
@@ -88,14 +85,14 @@ class SpaceAddCell: UITableViewCell {
             rightImageView.heightAnchor.constraint(equalToConstant: 20),
             rightImageView.widthAnchor.constraint(equalToConstant: 20),
             
-            selectedSpaceLabel.trailingAnchor.constraint(equalTo: rightImageView.leadingAnchor, constant: -10),
-            selectedSpaceLabel.centerYAnchor.constraint(equalTo: basicView.centerYAnchor),
-            selectedSpaceLabel.widthAnchor.constraint(equalToConstant: 250)
+            selectedDateLabel.trailingAnchor.constraint(equalTo: rightImageView.leadingAnchor, constant: -10),
+            selectedDateLabel.centerYAnchor.constraint(equalTo: basicView.centerYAnchor),
+            selectedDateLabel.widthAnchor.constraint(equalToConstant: 250)
         ])
     }
     
     // MARK: - Functions
-    func updateSelectedSpace(with locationName: String) {
-        selectedSpaceLabel.text = locationName
+    func updateSelectedDate(with selectedDate: String) {
+        selectedDateLabel.text = selectedDate
     }
 }

@@ -10,6 +10,10 @@ import PhotosUI
 
 class FeedViewController: UIViewController {
     
+    // MARK: - Variables
+    var selectedDate: Date?
+    var selectedCategories: [String]?
+    
     
     // MARK: - UI Components
     let feedTableView: UITableView = {
@@ -79,6 +83,8 @@ class FeedViewController: UIViewController {
         feedTableView.register(PhotoAddCell.self, forCellReuseIdentifier: PhotoAddCell.identifier)
         feedTableView.register(TextInputCell.self, forCellReuseIdentifier: TextInputCell.identifier)
         feedTableView.register(SpaceAddCell.self, forCellReuseIdentifier: SpaceAddCell.identifier)
+        feedTableView.register(DateAddCell.self, forCellReuseIdentifier: DateAddCell.idenifier)
+        feedTableView.register(CategoryTableViewCell.self, forCellReuseIdentifier: CategoryTableViewCell.identifier)
     }
     
 }
@@ -121,13 +127,15 @@ extension FeedViewController: UITableViewDelegate, UITableViewDataSource {
             cell.selectionStyle = .none
             return cell
         case (2, 1):
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-            cell.textLabel?.text = "방문날짜 추가 셀"
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: DateAddCell.idenifier, for: indexPath) as? DateAddCell else { return UITableViewCell() }
+            
+            cell.selectionStyle = .none
             return cell
         case (2, 2):
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-            cell.textLabel?.text = "커뮤니티 추가 셀"
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: CategoryTableViewCell.identifier, for: indexPath) as? CategoryTableViewCell else { return UITableViewCell() }
+            cell.selectionStyle = .none
             return cell
+            
         default:
             return UITableViewCell()
         }
@@ -149,6 +157,7 @@ extension FeedViewController: UITableViewDelegate, UITableViewDataSource {
             let spaceSearchVC = SpaceSearchViewController()
             spaceSearchVC.modalPresentationStyle = .pageSheet
             
+            // Sheet 형식을 사용
             if let sheet = spaceSearchVC.sheetPresentationController {
                 sheet.detents = [.medium(), .large()]
                 sheet.prefersGrabberVisible = true
@@ -161,6 +170,62 @@ extension FeedViewController: UITableViewDelegate, UITableViewDataSource {
             }
             
             present(spaceSearchVC, animated: true)
+        }
+        
+        if indexPath.section == 2 && indexPath.row == 1 {
+            let datePickerVC = DatePickerViewController()
+            datePickerVC.modalPresentationStyle = .pageSheet
+            
+            // 초기 날짜를 설정하여 DatePicker 초기화
+            if let currentSelectedDate = selectedDate { // 이미 선택된 날짜가 있으면 사용
+                datePickerVC.initialDate = currentSelectedDate
+            } else { // 선택된 날짜가 없다면 기본값을 오늘로 설정
+                datePickerVC.initialDate = Date()
+            }
+            
+            if let sheet = datePickerVC.sheetPresentationController {
+                sheet.detents = [.medium(), .large()]
+                sheet.prefersGrabberVisible = true
+            }
+            
+            // 날짜 선택 시 동작
+            datePickerVC.onDateSelected = { [weak self] selectedDate in
+                guard let self = self else { return }
+                self.selectedDate = selectedDate // 새로운 날짜 저장
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd"
+                let dateString = dateFormatter.string(from: selectedDate)
+                
+                guard let cell = tableView.cellForRow(at: indexPath) as? DateAddCell else { return }
+                cell.selectedDateLabel.text = dateString
+            }
+            present(datePickerVC, animated: true)
+        }
+        
+        if indexPath.section == 2 && indexPath.row == 2 { // 카테고리 선택 셀을 눌렀을 때
+            let categorySheetVC = CategorySheetViewController()
+            categorySheetVC.modalPresentationStyle = .pageSheet
+            
+            if let sheet = categorySheetVC.sheetPresentationController {
+                sheet.detents = [.medium()]
+                sheet.prefersGrabberVisible = true
+            }
+            
+            // 카테고리 선택 시 호출될 클로저
+            categorySheetVC.onCategoriesSelected = { [weak self] selectedCategories in
+                guard let self = self else { return }
+                
+                // 선택된 카테고리를 self.selectedCategories에 저장
+                self.selectedCategories = selectedCategories
+                
+                guard let cell = tableView.cellForRow(at: indexPath) as? CategoryTableViewCell else { return }
+                
+                cell.selectedCategoryLabel.text = selectedCategories.joined(separator: ", ")
+
+            }
+            
+            present(categorySheetVC, animated: true, completion: nil)
         }
         
     }
@@ -181,6 +246,7 @@ extension FeedViewController: PhotoAddCellDelegate {
     func photoAddCell(_ cell: PhotoAddCell, didSelectImages images: [UIImage]) {
         // 선택된 이미지를 PhotoAddCell에 전달하여 UI 업데이트
         print("선택된 이미지 개수: \(images.count)")
+        
     }
 }
 
