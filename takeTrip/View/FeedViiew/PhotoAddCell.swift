@@ -13,6 +13,12 @@ class PhotoAddCell: UITableViewCell {
     static let identifier = "PhotoAddCell"
     weak var delegate: PhotoAddCellDelegate?
     
+    var images: [UIImage] = [] {
+        didSet {
+            showImageCollectionView.reloadData()
+        }
+    }
+    
     // MARK: - UI Components
     let basicView: UIView = {
         let view = UIView()
@@ -52,6 +58,20 @@ class PhotoAddCell: UITableViewCell {
     }()
     
     
+    let showImageCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 10
+        layout.itemSize = CGSize(width: 140, height: 180)
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        
+        collectionView.layer.cornerRadius = 10
+        collectionView.clipsToBounds = true
+        collectionView.showsHorizontalScrollIndicator = false
+        return collectionView
+    }()
+    
     
     
     // MARK: - Initializations
@@ -61,6 +81,7 @@ class PhotoAddCell: UITableViewCell {
         contentView.backgroundColor = .secondarySystemBackground
 
         configureContraints()
+        configureCollectionView()
         imageSelectedButtonTapped()
     }
     
@@ -72,9 +93,11 @@ class PhotoAddCell: UITableViewCell {
     private func configureContraints() {
         contentView.addSubview(basicView)
         basicView.addSubview(imageSelectedButton)
+        basicView.addSubview(showImageCollectionView)
         
         basicView.translatesAutoresizingMaskIntoConstraints = false
         imageSelectedButton.translatesAutoresizingMaskIntoConstraints = false
+        showImageCollectionView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             basicView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -85,7 +108,12 @@ class PhotoAddCell: UITableViewCell {
             imageSelectedButton.leadingAnchor.constraint(equalTo: basicView.leadingAnchor, constant: 10),
             imageSelectedButton.centerYAnchor.constraint(equalTo: basicView.centerYAnchor),
             imageSelectedButton.heightAnchor.constraint(equalToConstant: 180),
-            imageSelectedButton.widthAnchor.constraint(equalToConstant: 140)
+            imageSelectedButton.widthAnchor.constraint(equalToConstant: 140),
+            
+            showImageCollectionView.leadingAnchor.constraint(equalTo: imageSelectedButton.trailingAnchor, constant: 15),
+            showImageCollectionView.centerYAnchor.constraint(equalTo: basicView.centerYAnchor),
+            showImageCollectionView.trailingAnchor.constraint(equalTo: basicView.trailingAnchor, constant: -10),
+            showImageCollectionView.heightAnchor.constraint(equalToConstant: 180)
         ])
     }
     
@@ -94,9 +122,21 @@ class PhotoAddCell: UITableViewCell {
         imageSelectedButton.addTarget(self, action: #selector(addimageButtonTapped), for: .touchUpInside)
     }
     
+    func configureCollectionView() {
+        showImageCollectionView.dataSource = self
+        showImageCollectionView.delegate = self
+        showImageCollectionView.register(SelectedPhotoCollectionViewCell.self, forCellWithReuseIdentifier: SelectedPhotoCollectionViewCell.identifier)
+    }
+    
+    
+    func updateImage(_ images: [UIImage]) {
+        self.images = images
+    }
+    
+    
     // MARK: - Actions
     @objc func addimageButtonTapped() {
-        print("Button Tapped")
+        // print("Button Tapped")
         delegate?.didTapAddPhotoButton(in: self)
     }
 }
@@ -109,3 +149,19 @@ protocol PhotoAddCellDelegate: AnyObject {
     func photoAddCell(_ cell: PhotoAddCell, didSelectImages images: [UIImage])
 }
 
+
+extension PhotoAddCell: UICollectionViewDelegate, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return images.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SelectedPhotoCollectionViewCell.identifier, for: indexPath) as? SelectedPhotoCollectionViewCell else { return UICollectionViewCell() }
+        
+        let image = images[indexPath.item]
+        cell.selectedImage.image = image
+        
+        return cell
+    }
+}

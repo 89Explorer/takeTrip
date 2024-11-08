@@ -14,6 +14,7 @@ class FeedViewController: UIViewController {
     var selectedDate: Date?
     var selectedCategories: [String]?
     
+    var selectedImages: [UIImage] = []     // 선택된 이미지를 담는 배열
     
     // MARK: - UI Components
     let feedTableView: UITableView = {
@@ -245,7 +246,7 @@ extension FeedViewController: PhotoAddCellDelegate {
     
     func photoAddCell(_ cell: PhotoAddCell, didSelectImages images: [UIImage]) {
         // 선택된 이미지를 PhotoAddCell에 전달하여 UI 업데이트
-        print("선택된 이미지 개수: \(images.count)")
+        cell.updateImage(images)
         
     }
 }
@@ -256,7 +257,7 @@ extension FeedViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true, completion: nil)
         
         let imageItems = results.prefix(10)
-        var selectedImages = [UIImage]()
+        selectedImages = []
         
         let group = DispatchGroup()
         
@@ -264,7 +265,7 @@ extension FeedViewController: PHPickerViewControllerDelegate {
             group.enter()
             item.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
                 if let image = object as? UIImage {
-                    selectedImages.append(image)
+                    self.selectedImages.append(image)
                 }
                 group.leave()
             }
@@ -272,7 +273,7 @@ extension FeedViewController: PHPickerViewControllerDelegate {
         
         group.notify(queue: .main) {
             if let cell = self.feedTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? PhotoAddCell {
-                self.photoAddCell(cell, didSelectImages: selectedImages)
+                self.photoAddCell(cell, didSelectImages: self.selectedImages)
             }
         }
     }
