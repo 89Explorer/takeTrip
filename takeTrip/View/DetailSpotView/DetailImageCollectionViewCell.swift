@@ -16,12 +16,14 @@ class DetailImageCollectionViewCell: UICollectionViewCell {
     
     let detailImage: UIImageView = {
         let imageView = UIImageView()
+        imageView.image = UIImage(named: "korea")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 10
         imageView.clipsToBounds = true
         return imageView
     }()
+    
     
     // MARK: - Initializations
     override init(frame: CGRect) {

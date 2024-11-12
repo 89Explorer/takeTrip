@@ -73,9 +73,13 @@ class FeedViewController: UIViewController {
     
     // MARK: - Functions
     func setupNavigationBar() {
-        navigationItem.title = "여행로그 작성"
-        navigationController?.navigationBar.tintColor = .label
-    }
+        let titleLabel = UILabel()
+        titleLabel.text = "Trip Log"
+        titleLabel.textColor = .label
+        titleLabel.font = .systemFont(ofSize: 28, weight: .black)
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
+    }    
     
     func setupTableView() {
         feedTableView.delegate = self
@@ -300,3 +304,5 @@ extension FeedViewController: TextInputCellDelegate {
         present(textInputPopupVC, animated: true, completion: nil)
     }
 }
+
+
