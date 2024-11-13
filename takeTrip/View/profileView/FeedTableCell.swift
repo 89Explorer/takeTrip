@@ -52,7 +52,7 @@ class FeedTableCell: UITableViewCell {
         stackView.distribution = .fill
         return stackView
     }()
-        
+    
     
     let feedTitleLabel: UILabel = {
         let label = UILabel()
@@ -97,7 +97,7 @@ class FeedTableCell: UITableViewCell {
         let label = PaddedLabel()
         label.text = "드라이브 🚗"
         label.layer.cornerRadius = 5
-        label.clipsToBounds = true 
+        label.clipsToBounds = true
         label.backgroundColor = .black
         label.textColor = .white
         label.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
@@ -154,5 +154,20 @@ class FeedTableCell: UITableViewCell {
             feedImageView.widthAnchor.constraint(equalToConstant: 140),
             feedImageView.heightAnchor.constraint(equalToConstant: 140),
         ])
+    }
+    
+    // MARK: - Functions
+    func configure(with feedItem: FeedItem) {
+        feedTitleLabel.text = feedItem.tripLog
+        feedDateLabel.text = feedItem.date != nil ? DateFormatter.localizedString(from: feedItem.date!, dateStyle: .medium, timeStyle: .none) : "날짜 없음"
+        feedLocationLabel.text = feedItem.location
+        feedCategoryLabel.text = feedItem.category ?? ""
+        
+        if let firstImage = feedItem.images?.first {
+            feedImageView.image = firstImage
+            print(firstImage)
+        } else {
+            feedImageView.image = UIImage(named: "placeholder") // 기본 이미지 설정
+        }
     }
 }

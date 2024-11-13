@@ -8,10 +8,11 @@
 import UIKit
 
 class ProfileViewController: UIViewController {
-
+    
     // MARK: - Variables
     var categories: [String] = ["작성한 피드", "담아둔 장소"]
     var selectedIndex: Int = 0    // 현재 선택된 셀의 인덱스
+    var feedItems: [FeedItem] = []
     
     
     // MARK: - UI Components
@@ -112,8 +113,8 @@ class ProfileViewController: UIViewController {
         tableView.separatorStyle = .none
         return tableView
     }()
-  
-
+    
+    
     // MARK: - Initializations
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -124,6 +125,15 @@ class ProfileViewController: UIViewController {
         
         configureTableView()
         configureCollectionView()
+        
+        // feedItems 로드
+        feedItems = FeedDataManager.shared.fetchFeedItems()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        feedItems = FeedDataManager.shared.fetchFeedItems()
+        profileFeedTableView.reloadData()
     }
     
     
@@ -132,7 +142,7 @@ class ProfileViewController: UIViewController {
         view.addSubview(basicView)
         
         basicView.addSubview(profileHeaderView)
-    
+        
         profileHeaderView.addSubview(profileImage)
         profileHeaderView.addSubview(profileStackView)
         profileHeaderView.addSubview(profileEditButton)
@@ -198,7 +208,7 @@ class ProfileViewController: UIViewController {
             profileFeedTableView.bottomAnchor.constraint(equalTo: profileBodyView.bottomAnchor, constant: -10)
             
         ])
-    
+        
     }
     
     
@@ -246,7 +256,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             cell.titleLabel.textColor = .label
             cell.underLine.isHidden = true
         }
-
+        
         return cell
     }
     
@@ -263,13 +273,32 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
 extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 5
+        return feedItems.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: FeedTableCell.identifier, for: indexPath) as? FeedTableCell else { return UITableViewCell() }
         
+        let feedItem = feedItems[indexPath.row]
+        cell.configure(with: feedItem) // FeedTableCell에 FeedItem 전달
+        
         return cell
+    }
+    
+    // 스와이프하여 삭제
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            // Core Data에서 삭제
+            let feedItemToDelete = feedItems[indexPath.row]
+            let feedID = feedItemToDelete.feedID
+            print("삭제할 FeedItem의 ID: \(feedID)") // 삭제할 feedID 출력
+            FeedDataManager.shared.deleteFeedItem(feedID: feedID)
+            
+            // 배열 및 테이블뷰에서 삭제
+            feedItems.remove(at: indexPath.row)
+            print(feedItems)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

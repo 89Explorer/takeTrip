@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		9D4FED152CDDCB5500C5941E /* FeedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D4FED142CDDCB5500C5941E /* FeedItem.swift */; };
+		9D4FED232CE31FA500C5941E /* FeedEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D4FED212CE31FA500C5941E /* FeedEntity+CoreDataClass.swift */; };
+		9D4FED242CE31FA500C5941E /* FeedEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D4FED222CE31FA500C5941E /* FeedEntity+CoreDataProperties.swift */; };
+		9D4FED8F2CE3274100C5941E /* FeedStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D4FED8E2CE3274100C5941E /* FeedStorageManager.swift */; };
+		9D4FED912CE3330F00C5941E /* FeedDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D4FED902CE3330F00C5941E /* FeedDataManager.swift */; };
 		9D6B3C442CC883BA0061939C /* ShareSpotInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D6B3C432CC883BA0061939C /* ShareSpotInfo.swift */; };
 		9DD769412CC21D6800BF683F /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD769402CC21D6800BF683F /* NetworkManager.swift */; };
 		9DD769432CC21F7700BF683F /* AttractionResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD769422CC21F7700BF683F /* AttractionResponse.swift */; };
@@ -40,6 +44,10 @@
 		9D095B182CC18120003A117D /* takeTripTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = takeTripTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D095B222CC18120003A117D /* takeTripUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = takeTripUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D4FED142CDDCB5500C5941E /* FeedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItem.swift; sourceTree = "<group>"; };
+		9D4FED212CE31FA500C5941E /* FeedEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeedEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
+		9D4FED222CE31FA500C5941E /* FeedEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeedEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		9D4FED8E2CE3274100C5941E /* FeedStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedStorageManager.swift; sourceTree = "<group>"; };
+		9D4FED902CE3330F00C5941E /* FeedDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDataManager.swift; sourceTree = "<group>"; };
 		9D6B3C432CC883BA0061939C /* ShareSpotInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSpotInfo.swift; sourceTree = "<group>"; };
 		9DD769402CC21D6800BF683F /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		9DD769422CC21F7700BF683F /* AttractionResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttractionResponse.swift; sourceTree = "<group>"; };
@@ -129,6 +137,8 @@
 		9D095AF62CC1811E003A117D = {
 			isa = PBXGroup;
 			children = (
+				9D4FED212CE31FA500C5941E /* FeedEntity+CoreDataClass.swift */,
+				9D4FED222CE31FA500C5941E /* FeedEntity+CoreDataProperties.swift */,
 				9DD76A142CC628C100BF683F /* Enum */,
 				9DD7693F2CC21D5500BF683F /* Model */,
 				9DD7693E2CC21D3800BF683F /* Network */,
@@ -165,6 +175,8 @@
 				9DD76A172CC63C5600BF683F /* UnifiedResponse.swift */,
 				9D6B3C432CC883BA0061939C /* ShareSpotInfo.swift */,
 				9D4FED142CDDCB5500C5941E /* FeedItem.swift */,
+				9D4FED8E2CE3274100C5941E /* FeedStorageManager.swift */,
+				9D4FED902CE3330F00C5941E /* FeedDataManager.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -331,6 +343,10 @@
 				9DD76A182CC63C5600BF683F /* UnifiedResponse.swift in Sources */,
 				9DD769412CC21D6800BF683F /* NetworkManager.swift in Sources */,
 				9D4FED152CDDCB5500C5941E /* FeedItem.swift in Sources */,
+				9D4FED232CE31FA500C5941E /* FeedEntity+CoreDataClass.swift in Sources */,
+				9D4FED242CE31FA500C5941E /* FeedEntity+CoreDataProperties.swift in Sources */,
+				9D4FED8F2CE3274100C5941E /* FeedStorageManager.swift in Sources */,
+				9D4FED912CE3330F00C5941E /* FeedDataManager.swift in Sources */,
 				9DD76A162CC628D000BF683F /* CategoryCode.swift in Sources */,
 				9DD769B22CC60FDA00BF683F /* AttractionImagesResponse.swift in Sources */,
 			);

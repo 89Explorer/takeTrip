@@ -16,6 +16,11 @@ class FeedViewController: UIViewController {
     
     var selectedImages: [UIImage] = []     // 선택된 이미지를 담는 배열
     
+    var feedDataManager = FeedDataManager()
+    var selectedTripLog: String = ""
+    var selectedLocation: String = ""
+    
+    
     // MARK: - UI Components
     let feedTableView: UITableView = {
         let tableView = UITableView(frame: .zero)
@@ -29,7 +34,7 @@ class FeedViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("데이피드 업로드", for: .normal)
         button.setTitleColor(.lightGray, for: .disabled)
-        button.isEnabled = false // 초기에는 button 비활성화
+        button.isEnabled = true // 초기에는 button 비활성화
         button.backgroundColor = .systemRed
         button.layer.cornerRadius = 10
         button.clipsToBounds = true
@@ -45,7 +50,15 @@ class FeedViewController: UIViewController {
         setupTableView()
         
         configureConstraints()
+        
+        uploadButton.addTarget(self, action: #selector(didTappedUploadButton), for: .touchUpInside)
+        
     }
+    
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+//        loadFeedItems()
+//    }
     
     
     // MARK: - Layouts
@@ -90,6 +103,31 @@ class FeedViewController: UIViewController {
         feedTableView.register(SpaceAddCell.self, forCellReuseIdentifier: SpaceAddCell.identifier)
         feedTableView.register(DateAddCell.self, forCellReuseIdentifier: DateAddCell.idenifier)
         feedTableView.register(CategoryTableViewCell.self, forCellReuseIdentifier: CategoryTableViewCell.identifier)
+    }
+    
+    func saveCurrentFeedItem() {
+        // 현재 뷰에서 입력된 데이터를 FeedItem 구조체 담음
+        let feedItem = FeedItem(
+            images: selectedImages,
+            tripLog: selectedTripLog,
+            location: selectedLocation,
+            date: selectedDate,
+            category: selectedCategories?.joined())
+        
+        // 데이터 저장 호출
+        feedDataManager.saveFeedItem(feedItem: feedItem)
+    }
+    
+    func loadFeedItems() {
+        let savedFeedItems = feedDataManager.fetchFeedItems()
+        
+        for item in savedFeedItems {
+            print("로드된 아이템: \(item)")
+        }
+    }
+    
+    @objc func didTappedUploadButton() {
+        saveCurrentFeedItem()
     }
     
 }
@@ -171,6 +209,7 @@ extension FeedViewController: UITableViewDelegate, UITableViewDataSource {
             // 선택했을 때의 동작
             spaceSearchVC.onSelectspace = { [weak self] item in
                 guard let cell = tableView.cellForRow(at: indexPath) as? SpaceAddCell else { return }
+                self?.selectedLocation = item
                 cell.updateSelectedSpace(with: item)
             }
             
@@ -298,6 +337,7 @@ extension FeedViewController: TextInputCellDelegate {
             // print("입력된 텍스트: \(inputText)")
             // 입력된 텍스트를 저장하거나 처리하는 로직 추가
             cell.feedLabel.text = inputText
+            self?.selectedTripLog = inputText
             self?.feedTableView.reloadData()
         }
         

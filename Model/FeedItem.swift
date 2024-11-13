@@ -9,10 +9,10 @@ import UIKit
 
 struct FeedItem {
     var images: [UIImage]?
-    var textLog: String?
+    var tripLog: String?
     
-    var text: String?
-    var date: Date?
     var location: String?
+    var date: Date?
     var category: String?
+    var feedID: String = UUID().uuidString  // 기본값으로 고유 ID 생성
 }
