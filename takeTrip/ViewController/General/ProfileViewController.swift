@@ -303,6 +303,8 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let userFeedVC = UserFeedViewController()
+        let selectedItem = feedItems[indexPath.item]
+        userFeedVC.userFeed = selectedItem
         navigationController?.pushViewController(userFeedVC, animated: true)
     }
 }

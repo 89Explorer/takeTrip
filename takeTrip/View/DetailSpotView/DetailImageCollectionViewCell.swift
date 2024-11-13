@@ -62,4 +62,10 @@ class DetailImageCollectionViewCell: UICollectionViewCell {
             detailImage.image = UIImage(systemName: "house.fill")
         }
     }
+    
+    func getUserImage(with images: UIImage) {
+        
+        detailImage.image = images
+        
+    }
 }

@@ -10,8 +10,7 @@ import UIKit
 class UserFeedViewController: UIViewController {
     
     // MARK: - Variables
-    
-
+    var userFeed: FeedItem?
     
     // MARK: - UI Components
     let feedScrollView: UIScrollView = {
@@ -56,15 +55,6 @@ class UserFeedViewController: UIViewController {
         return label
     }()
     
-    let feedTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "제목: 오늘은 이 날입니다."
-        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
-        label.textColor = .label
-        label.textAlignment = .left
-        return label
-    }()
-    
     let feedDateLabel: UILabel = {
         let label = UILabel()
         label.text = "2002-22-22"
@@ -78,6 +68,7 @@ class UserFeedViewController: UIViewController {
         let label = UILabel()
         label.text = "오늘은 정말 멋진 날이다."
         label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        label.numberOfLines = 0
         label.textColor = .label
         label.textAlignment = .left
         return label
@@ -91,6 +82,7 @@ class UserFeedViewController: UIViewController {
         
         configureConstarints()
         configureCollectionView()
+        configureData()
     }
     
     
@@ -101,7 +93,6 @@ class UserFeedViewController: UIViewController {
         feedScrollView.addSubview(feedImageCollectionView)
         feedScrollView.addSubview(feedLocationLabel)
         feedScrollView.addSubview(feedCategoryLabel)
-        feedScrollView.addSubview(feedTitleLabel)
         feedScrollView.addSubview(feedContentLabel)
         feedScrollView.addSubview(feedDateLabel)
         
@@ -110,7 +101,6 @@ class UserFeedViewController: UIViewController {
         feedImageCollectionView.translatesAutoresizingMaskIntoConstraints = false
         feedLocationLabel.translatesAutoresizingMaskIntoConstraints = false
         feedCategoryLabel.translatesAutoresizingMaskIntoConstraints = false
-        feedTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         feedDateLabel.translatesAutoresizingMaskIntoConstraints = false
         feedContentLabel.translatesAutoresizingMaskIntoConstraints = false
         
@@ -133,15 +123,11 @@ class UserFeedViewController: UIViewController {
             feedLocationLabel.topAnchor.constraint(equalTo: feedImageCollectionView.bottomAnchor, constant: 10),
             feedLocationLabel.trailingAnchor.constraint(equalTo: feedScrollView.trailingAnchor, constant: -10),
             
-            feedTitleLabel.leadingAnchor.constraint(equalTo: feedScrollView.leadingAnchor, constant: 10),
-            feedTitleLabel.trailingAnchor.constraint(equalTo: feedScrollView.trailingAnchor, constant: -10),
-            feedTitleLabel.topAnchor.constraint(equalTo: feedLocationLabel.bottomAnchor, constant: 5),
-            
-            feedCategoryLabel.topAnchor.constraint(equalTo: feedTitleLabel.bottomAnchor, constant: 5),
+            feedCategoryLabel.topAnchor.constraint(equalTo: feedLocationLabel.bottomAnchor, constant: 5),
             feedCategoryLabel.leadingAnchor.constraint(equalTo: feedScrollView.leadingAnchor, constant: 10),
             
             feedDateLabel.trailingAnchor.constraint(equalTo: feedScrollView.trailingAnchor, constant: -10),
-            feedDateLabel.topAnchor.constraint(equalTo: feedTitleLabel.bottomAnchor, constant: 5),
+            feedDateLabel.topAnchor.constraint(equalTo: feedLocationLabel.bottomAnchor, constant: 5),
             
             
             feedContentLabel.leadingAnchor.constraint(equalTo: feedScrollView.leadingAnchor, constant: 10),
@@ -157,7 +143,24 @@ class UserFeedViewController: UIViewController {
     func configureCollectionView() {
         feedImageCollectionView.delegate = self
         feedImageCollectionView.dataSource = self
-        feedImageCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        feedImageCollectionView.register(DetailImageCollectionViewCell.self, forCellWithReuseIdentifier: DetailImageCollectionViewCell.identifier)
+    }
+    
+    func configureData() {
+        guard let userFeed = userFeed else { return }
+        
+        guard let feedDate = userFeed.date else { return }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let dateString = dateFormatter.string(from: feedDate)
+        
+        feedDateLabel.text = dateString
+        feedContentLabel.text = userFeed.tripLog
+        feedCategoryLabel.text = userFeed.category
+        feedLocationLabel.text = userFeed.location
+        
+        
     }
     
 }
@@ -165,13 +168,15 @@ class UserFeedViewController: UIViewController {
 
 extension UserFeedViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 5
+        return userFeed?.images?.count ?? 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailImageCollectionViewCell.identifier, for: indexPath) as? DetailImageCollectionViewCell else { return UICollectionViewCell() }
         
-        cell.backgroundColor = .blue
+        if let images = userFeed?.images {
+            cell.getUserImage(with: images[indexPath.item])
+        }
         
         return cell
     }
