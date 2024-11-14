@@ -45,6 +45,10 @@ class FeedDataManager {
     // Core Data에서 불러오기
     func fetchFeedItems() -> [FeedItem] {
         let request: NSFetchRequest<FeedEntity> = FeedEntity.fetchRequest()
+        
+        // 날짜를 기준으로 정렬
+        let dateOrder = NSSortDescriptor(key: "date", ascending: false)
+        request.sortDescriptors = [dateOrder]
         var feedItems: [FeedItem] = []
         
         do {
