@@ -133,7 +133,7 @@ class ProfileViewController: UIViewController {
         
         
         // 삭제 완료 알림 등록
-        NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteNotification), name: NSNotification.Name("DeleteItemNotification"), object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleDeleteNotification), name: NSNotification.Name("DeleteItemNotification"), object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -242,15 +242,15 @@ class ProfileViewController: UIViewController {
     }
     
     
-    @objc private func handleDeleteNotification() {
-        // 삭제된 후 pop 동작 수행
-        self.navigationController?.popViewController(animated: true)
-    }
-
-    deinit {
-        // 메모리 누수를 방지하기 위해 Notification 해제
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("DeleteItemNotification"), object: nil)
-    }
+//    @objc private func handleDeleteNotification() {
+//        // 삭제된 후 pop 동작 수행
+//        self.navigationController?.popViewController(animated: true)
+//    }
+//
+//    deinit {
+//        // 메모리 누수를 방지하기 위해 Notification 해제
+//        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("DeleteItemNotification"), object: nil)
+//    }
 }
 
 
@@ -326,3 +326,6 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
         navigationController?.pushViewController(userFeedVC, animated: true)
     }
 }
+
+
+

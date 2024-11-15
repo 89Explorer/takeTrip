@@ -13,6 +13,8 @@ class ProfileFeedEditViewController: UIViewController {
     var feedDataManager = FeedDataManager()
     var userFeed: FeedItem?
     
+    weak var delegate: ProfileFeedEditDelegate?
+    
     // MARK: - UI Components
     let editButton: UIButton = {
         let button = UIButton(type: .system)
@@ -108,13 +110,21 @@ class ProfileFeedEditViewController: UIViewController {
     
     
     @objc func didCalledDeleteButton() {
+        print("데이터 삭제 완료")
         feedDataManager.deleteFeedItem(feedID: userFeed!.feedID)
-        dismiss(animated: true) {
-            // NotificationCenter를 통해 삭제 알림 전송
-            NotificationCenter.default.post(name: NSNotification.Name("DeleteItemNotification"), object: nil)
-        }
+        delegate?.didDeleteFeed()
+        dismiss(animated: true) 
+//        dismiss(animated: true) {
+//            // NotificationCenter를 통해 삭제 알림 전송
+//            NotificationCenter.default.post(name: NSNotification.Name("DeleteItemNotification"), object: nil)
+//        }
         
     }
     
 }
 
+
+// 삭제 작업을 완료한 후 ProfileViewController로 돌아가도록 알리는 Delegate를 정의
+protocol ProfileFeedEditDelegate: AnyObject {
+    func didDeleteFeed()
+}
