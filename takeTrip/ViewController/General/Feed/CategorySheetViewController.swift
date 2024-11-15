@@ -11,10 +11,7 @@ class CategorySheetViewController: UIViewController {
     
     // MARK: - Variables
     private let categories = ["반려동물 🐶", "애인 💑", "가족 👫", "아이 👶", "여행 🛫", "커피 ☕️","차 🫖","알코올 🚰", "드라이브 🚗","맛집 🥘", "산책 🌲", "뷰맛집 🌇",]
-    
-    //var onCategorySelected: ((String) -> Void)? // 선택된 카테고리를 전달할 클로저
-    private var selectedCategory: String? // 현재 선택된 카테고리를 저장하는 변수
-    
+
     var selectedCategories: [String] = []   // 현재 선택된 카테고리를 저장하는 배열
     var onCategoriesSelected: (([String]) -> Void)?  // 선택된 카테고리를 전달할 클로저
     var selectedIndexPaths: [IndexPath] = []

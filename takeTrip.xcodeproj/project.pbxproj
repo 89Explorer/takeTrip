@@ -162,6 +162,8 @@
 		9DD7693E2CC21D3800BF683F /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				9D4FED8E2CE3274100C5941E /* FeedStorageManager.swift */,
+				9D4FED902CE3330F00C5941E /* FeedDataManager.swift */,
 				9DD769402CC21D6800BF683F /* NetworkManager.swift */,
 			);
 			path = Network;
@@ -175,8 +177,6 @@
 				9DD76A172CC63C5600BF683F /* UnifiedResponse.swift */,
 				9D6B3C432CC883BA0061939C /* ShareSpotInfo.swift */,
 				9D4FED142CDDCB5500C5941E /* FeedItem.swift */,
-				9D4FED8E2CE3274100C5941E /* FeedStorageManager.swift */,
-				9D4FED902CE3330F00C5941E /* FeedDataManager.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";

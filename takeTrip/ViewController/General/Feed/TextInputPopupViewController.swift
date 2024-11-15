@@ -55,6 +55,7 @@ class TextInputPopupViewController: UIViewController {
     }()
 
     var onApply: ((String) -> Void)?
+    
     private var totalStackBottomConstraint: NSLayoutConstraint? // textView 하단 제약 조건
 
     override func viewDidLoad() {

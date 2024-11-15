@@ -162,12 +162,16 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource ,HomeFe
     func didSelectItem(_ selectedItem: AttractionItem) {
         let detailVC = DetailSpotViewController()
         detailVC.selectedSpotItem = selectedItem
+        
+        
         detailVC.getDetailImageList(with: selectedItem)
         detailVC.detailSpotView.getDetail(with: selectedItem)
         detailVC.getSpotCommonInfo(with: selectedItem)
         detailVC.getOverview(with: selectedItem)
         detailVC.getNearbySpotList(with: selectedItem)
         navigationController?.pushViewController(detailVC, animated: true)
+        
+        
     }
     
     

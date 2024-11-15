@@ -83,6 +83,7 @@ class UserFeedViewController: UIViewController {
         configureConstarints()
         configureCollectionView()
         configureData()
+        setupNavigationBar()
     }
     
     
@@ -159,8 +160,37 @@ class UserFeedViewController: UIViewController {
         feedContentLabel.text = userFeed.tripLog
         feedCategoryLabel.text = userFeed.category
         feedLocationLabel.text = userFeed.location
+    }
+    
+    func setupNavigationBar() {
+        let setupButton = UIButton(type: .system)
+        setupButton.setImage(UIImage(systemName: "list.bullet"), for: .normal)
+        setupButton.tintColor = .label
+        setupButton.addTarget(self, action: #selector(didTappedSetupButton), for: .touchUpInside)
         
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: setupButton)
+    }
+    
+    @objc func didTappedSetupButton() {
+        print("didTappedSetupButton() - called")
         
+        let profileFeedEditVC = ProfileFeedEditViewController()
+        
+        if let sheet = profileFeedEditVC.sheetPresentationController {
+            // sheet.detents = [.medium()]
+            
+            // sheet 올라오는 높이 조절
+            sheet.detents = [
+                .custom { context in
+                    return 200
+                }
+            ]
+            sheet.prefersGrabberVisible = true
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+        }
+        
+        profileFeedEditVC.modalPresentationStyle = .pageSheet
+        present(profileFeedEditVC, animated: true)
     }
     
 }

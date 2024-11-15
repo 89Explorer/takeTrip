@@ -171,6 +171,7 @@ class DetailSpotViewController: UIViewController {
                 }
             }
         }
+        
     }
     
     

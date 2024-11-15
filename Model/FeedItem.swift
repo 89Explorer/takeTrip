@@ -15,4 +15,5 @@ struct FeedItem {
     var date: Date?
     var category: String?
     var feedID: String = UUID().uuidString  // 기본값으로 고유 ID 생성
+    var favorite: Bool = false
 }

@@ -3,6 +3,7 @@
     <entity name="FeedEntity" representedClassName="FeedEntity" syncable="YES">
         <attribute name="category" optional="YES" attributeType="String"/>
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="favorite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="feedID" optional="YES" attributeType="String"/>
         <attribute name="imagePaths" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="NSString"/>
         <attribute name="location" optional="YES" attributeType="String"/>

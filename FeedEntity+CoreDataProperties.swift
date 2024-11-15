@@ -24,7 +24,7 @@ extension FeedEntity {
     @NSManaged public var date: Date?
     @NSManaged public var category: String?
     @NSManaged public var feedID: String?
-
+    @NSManaged public var favorite: NSNumber?
 }
 
 extension FeedEntity : Identifiable {
