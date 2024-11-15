@@ -97,7 +97,7 @@ class UserFeedViewController: UIViewController {
         feedScrollView.addSubview(feedContentLabel)
         feedScrollView.addSubview(feedDateLabel)
         
-
+        
         feedScrollView.translatesAutoresizingMaskIntoConstraints = false
         feedImageCollectionView.translatesAutoresizingMaskIntoConstraints = false
         feedLocationLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -112,7 +112,7 @@ class UserFeedViewController: UIViewController {
             feedScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             feedScrollView.topAnchor.constraint(equalTo: view.topAnchor),
             feedScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-//            feedScrollView.widthAnchor.constraint(equalTo: view.widthAnchor),
+            //            feedScrollView.widthAnchor.constraint(equalTo: view.widthAnchor),
             
             feedImageCollectionView.leadingAnchor.constraint(equalTo: feedScrollView.leadingAnchor),
             feedImageCollectionView.trailingAnchor.constraint(equalTo: feedScrollView.trailingAnchor),
@@ -175,6 +175,7 @@ class UserFeedViewController: UIViewController {
         print("didTappedSetupButton() - called")
         
         let profileFeedEditVC = ProfileFeedEditViewController()
+        profileFeedEditVC.userFeed = userFeed
         
         if let sheet = profileFeedEditVC.sheetPresentationController {
             // sheet.detents = [.medium()]
@@ -211,3 +212,4 @@ extension UserFeedViewController: UICollectionViewDelegate, UICollectionViewData
         return cell
     }
 }
+
