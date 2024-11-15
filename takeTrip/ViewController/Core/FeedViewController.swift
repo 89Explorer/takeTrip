@@ -54,8 +54,7 @@ class FeedViewController: UIViewController {
         uploadButton.addTarget(self, action: #selector(didTappedUploadButton), for: .touchUpInside)
         
     }
-    
-    
+
     
     // MARK: - Layouts
     private func configureConstraints() {
@@ -122,8 +121,47 @@ class FeedViewController: UIViewController {
         }
     }
     
+    
     @objc func didTappedUploadButton() {
         saveCurrentFeedItem()
+        
+        // 선택한 값 초기화
+        selectedTripLog = ""
+        selectedLocation = ""
+        selectedImages = []
+        selectedDate = nil
+        selectedCategories = []
+        
+        // UI 초기화
+        resetUI()
+        
+        if let tabBarController = self.tabBarController {
+            tabBarController.selectedIndex = 4
+        }
+    }
+    
+    func resetUI() {
+        if let photoCell = feedTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? PhotoAddCell {
+            photoCell.updateImage([])
+        }
+        
+        if let textCell = feedTableView.cellForRow(at: IndexPath(row: 0, section: 1)) as? TextInputCell {
+            textCell.feedLabel.text = "텍스트를 입력하세요 "
+        }
+        
+        if let spaceCell = feedTableView.cellForRow(at: IndexPath(row: 0, section: 2)) as? SpaceAddCell {
+            spaceCell.updateSelectedSpace(with: "장소를 선택하세요")
+        }
+        
+        if let dateCell = feedTableView.cellForRow(at: IndexPath(row: 1, section: 2)) as? DateAddCell {
+            dateCell.selectedDateLabel.text = "날짜를 선택하세요"
+        }
+        
+        if let categoryCell = feedTableView.cellForRow(at: IndexPath(row: 2, section: 2)) as? CategoryTableViewCell {
+            categoryCell.selectedCategoryLabel.text = "카테고리를 선택하세요"
+        }
+        
+        feedTableView.reloadData()
     }
     
 }
