@@ -19,8 +19,8 @@ class ProfileFeedEditViewController: UIViewController {
     let editButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("수정", for: .normal)
-        button.setTitleColor(.label, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+        button.setTitleColor(.systemBlue, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
         return button
     }()
     
@@ -28,21 +28,15 @@ class ProfileFeedEditViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("삭제", for: .normal)
         button.setTitleColor(.systemRed, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
         return button
-    }()
-    
-    let underLine: UIView = {
-        let view = UIView()
-        view.backgroundColor = .label
-        return view
     }()
     
     let closeButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("닫기", for: .normal)
         button.setTitleColor(.label, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
         return button
     }()
     
@@ -53,7 +47,7 @@ class ProfileFeedEditViewController: UIViewController {
         stackView.clipsToBounds = true
         stackView.axis = .vertical
         stackView.spacing = 16
-        stackView.alignment = .center
+        stackView.alignment = .fill
         stackView.distribution = .fill
         return stackView
     }()
@@ -73,13 +67,11 @@ class ProfileFeedEditViewController: UIViewController {
         view.addSubview(buttonStackView)
         buttonStackView.addArrangedSubview(editButton)
         buttonStackView.addArrangedSubview(deletButton)
-        buttonStackView.addArrangedSubview(underLine)
         buttonStackView.addArrangedSubview(closeButton)
         
         buttonStackView.translatesAutoresizingMaskIntoConstraints = false
         editButton.translatesAutoresizingMaskIntoConstraints = false
         deletButton.translatesAutoresizingMaskIntoConstraints = false
-        underLine.translatesAutoresizingMaskIntoConstraints = false
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -88,11 +80,6 @@ class ProfileFeedEditViewController: UIViewController {
             buttonStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             buttonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             buttonStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            underLine.heightAnchor.constraint(equalToConstant: 2),
-            underLine.leadingAnchor.constraint(equalTo: buttonStackView.leadingAnchor, constant: 20),
-            underLine.trailingAnchor.constraint(equalTo: buttonStackView.trailingAnchor, constant: -20)
-            
         ])
     }
     
@@ -113,14 +100,13 @@ class ProfileFeedEditViewController: UIViewController {
         print("데이터 삭제 완료")
         feedDataManager.deleteFeedItem(feedID: userFeed!.feedID)
         delegate?.didDeleteFeed()
-        dismiss(animated: true) 
+        dismiss(animated: true)
 //        dismiss(animated: true) {
 //            // NotificationCenter를 통해 삭제 알림 전송
 //            NotificationCenter.default.post(name: NSNotification.Name("DeleteItemNotification"), object: nil)
 //        }
         
     }
-    
 }
 
 

@@ -86,6 +86,7 @@ class FeedCollectionViewCell: UICollectionViewCell {
         return button
     }()
     
+    
     // MARK: - Initializations
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -130,6 +131,7 @@ class FeedCollectionViewCell: UICollectionViewCell {
         let prefix = components.prefix(wordCount)          // 원하는 단어 개수만큼 가져옴
         return prefix.joined(separator: " ")               // 다시 띄어쓰기로 합침
     }
+    
     
     
     // MARK: - Layouts

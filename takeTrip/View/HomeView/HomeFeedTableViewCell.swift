@@ -12,7 +12,7 @@ class HomeFeedTableViewCell: UITableViewCell {
     
     // MARK: - Variables
     static let identifier = "HomeFeedTableViewCell"
-    //
+    
     var selectedSpotItem: [AttractionItem] = []
     weak var delegate: HomeFeedTableViewCellDelegate?
     
@@ -70,8 +70,6 @@ class HomeFeedTableViewCell: UITableViewCell {
             }
         }
     }
-    
-
     
     // MARK: - Layouts
     private func configureConstraints() {

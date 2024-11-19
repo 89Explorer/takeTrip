@@ -217,9 +217,6 @@ extension UserFeedViewController: UICollectionViewDelegate, UICollectionViewData
 extension UserFeedViewController: ProfileFeedEditDelegate {
     func didDeleteFeed() {
         // ProfileViewController로 돌아가기
-        // navigationController?.popViewController(animated: true)
-        if let profileVC = navigationController?.viewControllers.first(where: { $0 is ProfileViewController }) {
-            navigationController?.popToViewController(profileVC, animated: true)
-        }
+        navigationController?.popViewController(animated: true)
     }
 }

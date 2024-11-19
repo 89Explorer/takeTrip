@@ -74,6 +74,7 @@ class FeedDataManager {
                     category: entity.category,
                     feedID: entity.feedID ?? UUID().uuidString
                 )
+                
                 feedItems.append(feedItem)
                 print(feedItem.feedID)
             }
@@ -107,4 +108,6 @@ class FeedDataManager {
             print("FeedItem 삭제 실패: \(error)")
         }
     }
+    
+    
 }
